@@ -66,19 +66,24 @@ def get_weather(city):
 user_input = st.text_input("질문", "서울 날씨 어때?")
 
 if user_input and st.button("실행"):
-    # TODO: LLM에게 도구 제공
-    # 힌트: response = Complete(
-    #           model="llama3.1-70b",
-    #           prompt=user_input,
-    #           tools=tools,
-    #           session=session
-    #       )
+    with st.spinner("Agent 실행 중..."):
+        # TODO: 입력에서 도시명 추출하기 (키워드 매칭)
+        # 힌트: cities = ["서울", "부산", "제주", "대구", "인천"]
+        #       found_city = None
+        #       for city in cities:
+        #           if city in user_input:
+        #               found_city = city
+        #               break
+        found_city = None  # TODO를 완성하세요
 
+        # TODO: 도시가 발견되면 날씨 조회, 아니면 LLM 응답
+        # 힌트: if found_city:
+        #           weather = get_weather(found_city)
+        #           st.write(f"### 🌤️ {found_city} 날씨")
+        #           st.write(f"🌡️ 온도: {weather['temp']}°C")
+        #           st.write(f"☁️ 상태: {weather['condition']}")
+        #       else:
+        #           response = complete_llm(session, "llama3.1-70b", user_input)
+        #           st.write(response)
 
-    # TODO: 도구 호출 확인 및 실행
-    # 힌트: if hasattr(response, 'tool_calls') or "tool_calls" in str(response):
-    #           city = "서울"  # 파싱된 도시명
-    #           weather = get_weather(city)
-    #           st.write(f"🌡️ {city}: {weather['temp']}°C, {weather['condition']}")
-
-    st.info("💡 TODO를 완성하세요")
+        st.info("💡 TODO를 완성하세요")

@@ -78,23 +78,64 @@ tools = []  # TODO를 완성하세요
 # TODO: 분석 함수 구현
 def get_stats():
     """데이터 기본 통계"""
-    # 힌트: 평균 가격, 총 판매량, 평균 평점 등 반환
-    pass
+    # 힌트: return {
+    #           "총 제품 수": len(df),
+    #           "평균 가격": f"{df['가격'].mean():,.0f}원",
+    #           "총 판매량": f"{df['판매량'].sum():,}개",
+    #           "평균 평점": f"{df['평점'].mean():.1f}점"
+    #       }
+    return {}  # TODO를 완성하세요
 
 def get_top_products(by="판매량", n=3):
     """상위 제품 조회"""
-    # 힌트: df.nlargest(n, by) 사용
-    pass
+    # 힌트: return df.nlargest(n, by)[["제품", by]].to_dict("records")
+    return []  # TODO를 완성하세요
 
 def filter_by_category(category):
     """카테고리별 필터링"""
-    # 힌트: df[df["카테고리"] == category]
-    pass
+    # 힌트: filtered = df[df["카테고리"] == category]
+    #       return filtered.to_dict("records")
+    return []  # TODO를 완성하세요
+
+st.write("### 질문 예시")
+st.write("- 전체 통계 보여줘")
+st.write("- 가장 많이 팔린 제품은?")
+st.write("- 평점이 가장 높은 제품")
+st.write("- 전자기기 카테고리만")
 
 user_input = st.text_input("질문", "가장 많이 팔린 제품은?")
 
 if user_input and st.button("분석"):
-    # TODO: 질문에 따라 적절한 분석 수행
-    # 힌트: 키워드 기반으로 도구 선택
+    with st.spinner("분석 중..."):
+        # TODO: 키워드 기반 분석 수행
+        # 힌트:
+        # if any(word in user_input for word in ["통계", "전체", "요약"]):
+        #     stats = get_stats()
+        #     st.write("### 📈 데이터 통계")
+        #     for key, value in stats.items():
+        #         st.write(f"- **{key}**: {value}")
+        #
+        # elif any(word in user_input for word in ["많이", "판매", "인기"]):
+        #     top = get_top_products(by="판매량", n=3)
+        #     st.write("### 🏆 판매량 TOP 3")
+        #     for i, item in enumerate(top, 1):
+        #         st.write(f"{i}. **{item['제품']}** - {item['판매량']:,}개")
+        #
+        # elif any(word in user_input for word in ["평점", "높은"]):
+        #     top = get_top_products(by="평점", n=3)
+        #     st.write("### ⭐ 평점 TOP 3")
+        #     for i, item in enumerate(top, 1):
+        #         st.write(f"{i}. **{item['제품']}** - {item['평점']}점")
+        #
+        # elif "전자기기" in user_input:
+        #     filtered = filter_by_category("전자기기")
+        #     st.write("### 🖥️ 전자기기 카테고리")
+        #     st.dataframe(pd.DataFrame(filtered))
+        #
+        # else:
+        #     # 키워드 매칭 안 되면 LLM에게 질문
+        #     prompt = f"데이터:\n{df.to_string()}\n\n질문: {user_input}"
+        #     response = complete_llm(session, "llama3.1-70b", prompt)
+        #     st.write(response)
 
-    st.info("💡 TODO를 완성하세요")
+        st.info("💡 TODO를 완성하세요")

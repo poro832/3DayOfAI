@@ -24,16 +24,20 @@
 
 ```python
 def stream_text(text):
-    """텍스트를 스트리밍처럼 출력"""
+    """텍스트를 스트리밍처럼 출력 (제너레이터 함수)"""
     import time
-    words = text.split()
+    words = text.split()  # 텍스트를 단어로 분리
     for word in words:
-        yield word + ' '
-        time.sleep(0.02)
+        yield word + ' '  # 단어 하나씩 반환
+        time.sleep(0.02)  # 타이핑 효과를 위한 지연
 
-# 사용
+# 사용 예시
+response = complete_llm(session, "llama3.1-70b", user_question)
 st.write_stream(stream_text(response))
 ```
+
+> **참고**: `yield`는 제너레이터 함수에서 사용하며, 값을 하나씩 반환합니다.
+> 일반 함수의 `return`과 달리 함수가 종료되지 않고 계속 실행됩니다.
 
 ### 캐싱
 

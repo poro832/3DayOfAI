@@ -41,15 +41,27 @@ uploaded_file = None  # TODO를 완성하세요
 
 if uploaded_file:
     # TODO: 파일 타입에 따라 텍스트 추출
-    # PDF: PdfReader 사용
-    # TXT: 여러 인코딩 시도 (utf-8, cp949, euc-kr)
+    # 힌트:
+    # if uploaded_file.type == "application/pdf":
+    #     # PDF 파일 처리
+    #     reader = PdfReader(uploaded_file)
+    #     text = ""
+    #     for page in reader.pages:
+    #         text += page.extract_text()
+    # else:
+    #     # TXT 파일 처리 (여러 인코딩 시도)
+    #     raw = uploaded_file.read()
+    #     for encoding in ['utf-8', 'cp949', 'euc-kr', 'latin-1']:
+    #         try:
+    #             text = raw.decode(encoding)
+    #             break
+    #         except UnicodeDecodeError:
+    #             continue
 
+    text = ""  # TODO를 완성하세요
 
-
-
-    # TODO: 세션 상태에 저장
-    # 힌트: st.session_state['document_text'] = text
-    text = ""  # TODO를 완성하세요 (위 힌트 참고)
+    # 세션 상태에 저장
+    st.session_state['document_text'] = text (위 힌트 참고)
 
     # 파일로 저장 (다른 앱과 공유)
     with open(os.path.join(DATA_DIR, "document_text.pkl"), "wb") as f:

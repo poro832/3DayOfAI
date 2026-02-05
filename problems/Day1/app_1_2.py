@@ -35,12 +35,9 @@ user_question = None  # TODO를 완성하세요
 
 # TODO: 질문이 있을 때 AI 응답 받기
 if user_question:
-    # TODO: Complete 함수 호출
-    # 힌트: response = Complete(
-    #           model="llama3.1-70b",
-    #           prompt=user_question,
-    #           session=session
-    #       )
+    # TODO: complete_llm 함수 호출
+    # 힌트: with st.spinner("생각하는 중..."):
+    #           response = complete_llm(session, "llama3.1-70b", user_question)
 
     # TODO: 응답 출력
     # 힌트: st.write("### AI 답변")

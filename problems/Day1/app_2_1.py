@@ -32,16 +32,16 @@ user_question = st.text_input("질문을 입력하세요")
 
 if user_question:
     st.write("### AI 답변")
-    
-    # TODO: stream=True 옵션으로 스트리밍 응답 받기
-    # 힌트: response_stream = Complete(
-    #           model="llama3.1-70b",
-    #           prompt=user_question,
-    #           session=session,
-    #           stream=True
-    #       )
-    
-    
-    # TODO: 스트리밍 출력
-    # 힌트: st.write_stream(response_stream)
+
+    # 스트리밍 효과를 위한 함수 (단어별로 출력)
+    def stream_text(text):
+        import time
+        words = text.split()
+        for word in words:
+            yield word + ' '
+            time.sleep(0.02)
+
+    # TODO: LLM 응답을 받아서 스트리밍으로 출력하기
+    # 힌트: response = complete_llm(session, "llama3.1-70b", user_question)
+    #       st.write_stream(stream_text(response))
     

@@ -70,11 +70,11 @@ if user_question:
     # TODO: 3. RAG 프롬프트 생성
     # 힌트: context = "\n\n".join(top_chunks)
     #       prompt = f"다음 문서를 참고하여 답변하세요:\n\n{context}\n\n질문: {user_question}"
-    
-    
-    
+    context = ""  # TODO를 완성하세요
+    prompt = user_question  # TODO를 완성하세요
+
     # TODO: 4. LLM으로 답변 생성
-    # 힌트: response = Complete(model="llama3.1-70b", prompt=prompt, session=session)
+    # 힌트: response = complete_llm(session, "llama3.1-70b", prompt)
     response = "TODO를 완성하세요"  # TODO를 완성하세요
 
     st.write("### 답변")

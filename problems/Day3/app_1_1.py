@@ -51,16 +51,15 @@ def get_current_time():
 user_input = st.text_input("질문", "지금 몇 시야?")
 
 if user_input and st.button("실행"):
-    # TODO: LLM에게 도구 제공
-    # 힌트: response = Complete(
-    #           model="llama3.1-70b",
-    #           prompt=user_input,
-    #           tools=tools,
-    #           session=session
-    #       )
-
-    # TODO: 도구 호출 확인
-    # 힌트: if "tool_calls" in response:
+    # TODO: 키워드 기반으로 도구 선택하기 (시뮬레이션)
+    # 힌트: time_keywords = ["시간", "몇 시", "몇시", "time"]
+    #       is_time_query = any(kw in user_input.lower() for kw in time_keywords)
+    #
+    #       if is_time_query:
     #           result = get_current_time()
-    #           st.write(f"⏰ {result}")
+    #           st.write(f"⏰ 현재 시간: {result}")
+    #       else:
+    #           # 도구가 필요 없으면 LLM에게 직접 질문
+    #           response = complete_llm(session, "llama3.1-70b", user_input)
+    #           st.write(response)
     pass  # TODO를 완성하면 이 줄을 삭제하세요

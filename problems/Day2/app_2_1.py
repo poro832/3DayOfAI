@@ -45,14 +45,36 @@ if 'chunks' not in st.session_state:
 chunks = st.session_state['chunks']
 st.write(f"청크 개수: {len(chunks)}개")
 
+def escape_sql_string(text):
+    """SQL 인젝션 방지 (특수문자 이스케이프)"""
+    if text is None:
+        return ""
+    return text.replace("'", "''").replace("\\", "\\\\")
+
 if st.button("임베딩 생성"):
     embeddings = []
-    
+    progress_bar = st.progress(0)
+    status_text = st.empty()
+
     # TODO: 각 청크에 대해 임베딩 생성
-    # 힌트: for chunk in chunks:
-    #           query = f"SELECT SNOWFLAKE.CORTEX.EMBED_TEXT_768('snowflake-arctic-embed-m', '{chunk}') as embedding"
-    #           result = session.sql(query).collect()
-    #           embeddings.append(result[0]['EMBEDDING'])
+    # 힌트:
+    # for i, chunk in enumerate(chunks):
+    #     status_text.text(f"임베딩 생성 중... ({i+1}/{len(chunks)})")
+    #
+    #     # SQL 인젝션 방지
+    #     safe_chunk = escape_sql_string(chunk)
+    #     query = f"""
+    #     SELECT SNOWFLAKE.CORTEX.EMBED_TEXT_768(
+    #         'snowflake-arctic-embed-m',
+    #         '{safe_chunk}'
+    #     ) as embedding
+    #     """
+    #     result = session.sql(query).collect()
+    #     embeddings.append(result[0]['EMBEDDING'])
+    #
+    #     progress_bar.progress((i + 1) / len(chunks))
+    #
+    # status_text.empty()
     
     
     
