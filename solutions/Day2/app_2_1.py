@@ -1,0 +1,76 @@
+"""
+Day 2 - Step 2: 벡터 임베딩 생성 (정답)
+"""
+
+import streamlit as st
+import pickle
+import os
+from snowflake.snowpark import Session
+
+DATA_DIR = os.path.dirname(os.path.abspath(__file__))
+
+def get_snowflake_session():
+    connection_parameters = st.secrets["connections"]["snowflake"]
+    return Session.builder.configs(connection_parameters).create()
+
+def escape_sql_string(text):
+    """SQL 인젝션 방지를 위한 이스케이프"""
+    if text is None:
+        return ""
+    return text.replace("'", "''").replace("\\", "\\\\")
+
+try:
+    session = get_snowflake_session()
+except Exception as e:
+    st.error(f"Snowflake 연결 실패: {e}")
+    st.stop()
+
+st.title("🔢 벡터 임베딩")
+
+# 저장된 청크 로드 시도
+chunks_path = os.path.join(DATA_DIR, "chunks.pkl")
+if os.path.exists(chunks_path):
+    with open(chunks_path, "rb") as f:
+        st.session_state['chunks'] = pickle.load(f)
+
+if 'chunks' not in st.session_state:
+    st.warning("먼저 텍스트를 청킹하세요 (app_1_2.py)")
+    st.stop()
+
+chunks = st.session_state['chunks']
+st.write(f"청크 개수: {len(chunks)}개")
+
+if st.button("임베딩 생성"):
+    embeddings = []
+    progress_bar = st.progress(0)
+    status_text = st.empty()
+
+    try:
+        for i, chunk in enumerate(chunks):
+            status_text.text(f"임베딩 생성 중... ({i+1}/{len(chunks)})")
+
+            # SQL 인젝션 방지
+            safe_chunk = escape_sql_string(chunk)
+            query = f"""
+            SELECT SNOWFLAKE.CORTEX.EMBED_TEXT_768(
+                'snowflake-arctic-embed-m',
+                '{safe_chunk}'
+            ) as embedding
+            """
+            result = session.sql(query).collect()
+            embeddings.append(result[0]['EMBEDDING'])
+
+            progress_bar.progress((i + 1) / len(chunks))
+
+        st.session_state['embeddings'] = embeddings
+
+        # 파일로 저장 (다른 앱과 공유)
+        with open(os.path.join(DATA_DIR, "embeddings.pkl"), "wb") as f:
+            pickle.dump(embeddings, f)
+
+        status_text.empty()
+        st.success(f"✅ {len(embeddings)}개 임베딩 생성 완료!")
+        st.write(f"벡터 차원: {len(embeddings[0])}")
+
+    except Exception as e:
+        st.error(f"임베딩 생성 실패: {e}")

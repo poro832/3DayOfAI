@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(gh api:*)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "Bash(powershell -Command \"Get-ChildItem -Recurse -Filter ''*.py'' | ForEach-Object { \\(Get-Content $_FullName -Raw\\) -replace ''mistral-large2'', ''claude-3-5-sonnet'' | Set-Content $_FullName -NoNewline }\")",
+      "Bash(powershell -Command:*)",
+      "Bash(findstr:*)",
+      "Bash(pip show:*)",
+      "Bash(pip install:*)",
+      "Bash(python:*)",
+      "Bash(dir \"C:\\\\Users\\\\ldd82\\\\NxtCloud\\\\3DaysOfAI\\\\.streamlit\")",
+      "Bash(timeout 15 streamlit run:*)",
+      "Bash(timeout 10 streamlit run:*)",
+      "WebSearch",
+      "WebFetch(domain:docs.snowflake.com)",
+      "Bash(timeout 20 streamlit run:*)",
+      "Bash(timeout 12 streamlit run:*)"
+    ]
+  }
+}
