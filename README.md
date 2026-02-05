@@ -154,6 +154,8 @@ streamlit run app_2_1.py  # 임베딩 → embeddings.pkl 저장
 streamlit run app_2_2.py  # 이후 실습들은 위 파일들을 자동 로드
 ```
 
+**샘플 데이터**: `sample_data/animals.txt` 파일을 Day2 실습에 활용하세요.
+
 ---
 
 ## 기술 스택

@@ -26,6 +26,8 @@
 │   ├── Day1/
 │   ├── Day2/
 │   └── Day3/
+├── sample_data/                # 실습용 샘플 데이터
+│   └── animals.txt             # Day2 RAG 실습용
 ├── notion/Notion_Documents_Final/  # 노션 문서
 └── requirements.txt
 ```
