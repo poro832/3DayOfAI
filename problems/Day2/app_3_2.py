@@ -51,7 +51,10 @@ if 'embeddings' not in st.session_state:
 def cosine_similarity(vec1, vec2):
     return np.dot(vec1, vec2) / (np.linalg.norm(vec1) * np.linalg.norm(vec2))
 
-user_question = st.text_input("질문하세요")
+# 예시 질문 (sample_data/animals.txt 사용 시)
+st.info("💡 예시: 돌고래는 어떻게 의사소통해? / 기린은 하루에 얼마나 자? / 가장 빠른 동물은?")
+
+user_question = st.text_input("질문하세요", placeholder="예: 펭귄은 어디에 살아?")
 
 if user_question:
     query_sql = f"SELECT SNOWFLAKE.CORTEX.EMBED_TEXT_768('snowflake-arctic-embed-m', '{user_question}') as embedding"
@@ -69,7 +72,14 @@ if user_question:
     prompt = f"다음 문서를 참고하여 답변하세요:\n\n{context}\n\n질문: {user_question}"
     
     # TODO: 스트리밍 응답 추가
-    # 힌트: response_stream = Complete(model="llama3.1-70b", prompt=prompt, session=session, stream=True)
-    #       st.write_stream(response_stream)
+    # 힌트: def stream_text(text):
+    #           import time
+    #           words = text.split()
+    #           for word in words:
+    #               yield word + ' '
+    #               time.sleep(0.02)
+    #
+    #       response = complete_llm(session, "llama3.1-70b", prompt)
+    #       st.write_stream(stream_text(response))
     
     st.write("### 답변")

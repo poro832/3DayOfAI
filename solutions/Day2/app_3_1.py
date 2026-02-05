@@ -54,7 +54,10 @@ if 'embeddings' not in st.session_state:
     st.warning("먼저 문서를 준비하세요 (app_1_1 ~ app_2_1 실행)")
     st.stop()
 
-user_question = st.text_input("질문하세요")
+# 예시 질문 (sample_data/animals.txt 사용 시)
+st.info("💡 예시: 사자는 어디에 살아? / 펭귄은 무엇을 먹어? / 가장 큰 동물은?")
+
+user_question = st.text_input("질문하세요", placeholder="예: 기린의 목은 얼마나 길어?")
 
 if user_question:
     try:

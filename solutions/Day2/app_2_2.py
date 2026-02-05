@@ -47,7 +47,10 @@ if 'embeddings' not in st.session_state:
     st.warning("먼저 임베딩을 생성하세요 (app_2_1.py)")
     st.stop()
 
-user_query = st.text_input("검색어 입력")
+# 예시 질문 (sample_data/animals.txt 사용 시)
+st.info("💡 예시 질문: 사자, 코끼리 특징, 펭귄 먹이, 가장 빠른 동물")
+
+user_query = st.text_input("검색어 입력", placeholder="예: 코끼리는 하루에 물을 얼마나 마셔?")
 
 if user_query and st.button("검색"):
     try:

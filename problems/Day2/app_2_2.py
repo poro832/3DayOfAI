@@ -52,10 +52,13 @@ if 'embeddings' not in st.session_state:
 def cosine_similarity(vec1, vec2):
     """두 벡터의 코사인 유사도 계산"""
     # TODO: numpy 사용
-    # 힌트: np.dot(vec1, vec2) / (np.linalg.norm(vec1) * np.linalg.norm(vec2))
+    # 힌트: return np.dot(vec1, vec2) / (np.linalg.norm(vec1) * np.linalg.norm(vec2))
     pass
 
-user_query = st.text_input("검색어 입력")
+# 예시 질문 (sample_data/animals.txt 사용 시)
+st.info("💡 예시 질문: 사자, 코끼리 특징, 펭귄 먹이, 가장 빠른 동물")
+
+user_query = st.text_input("검색어 입력", placeholder="예: 코끼리는 하루에 물을 얼마나 마셔?")
 
 if user_query and st.button("검색"):
     # TODO: 쿼리 임베딩 생성

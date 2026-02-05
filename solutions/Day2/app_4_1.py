@@ -54,6 +54,9 @@ if "messages" not in st.session_state:
 def cosine_similarity(vec1, vec2):
     return np.dot(vec1, vec2) / (np.linalg.norm(vec1) * np.linalg.norm(vec2))
 
+# 예시 질문 (sample_data/animals.txt 사용 시)
+st.info("💡 예시: 코끼리는 하루에 얼마나 먹어? / 상어의 특징은? / 꿀벌은 어떻게 소통해?")
+
 # 이전 메시지 표시
 for message in st.session_state.messages:
     with st.chat_message(message["role"]):
