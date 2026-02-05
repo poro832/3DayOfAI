@@ -67,12 +67,7 @@ if user_input:
     ])
     
     with st.chat_message("assistant"):
-        ai_response_stream = Complete(
-            model="llama3.1-70b",
-            prompt=conversation,
-            session=session,
-            stream=True
-        )
-        ai_response = st.write_stream(ai_response_stream)
+        ai_response = complete_llm(session, "llama3.1-70b", conversation)
+        st.write(ai_response)
     
     st.session_state.messages.append({"role": "assistant", "content": ai_response})

@@ -1,5 +1,17 @@
 """
 Day 3 - Step 1: Function Calling 기초 (정답)
+
+[학습 목표]
+- Agent의 기본 개념 이해 (도구 정의 + 도구 선택 + 실행)
+- 키워드 기반 도구 선택 패턴 학습
+
+[참고]
+이 실습은 Agent 개념을 학습하기 위한 '시뮬레이션'입니다.
+실제 Snowflake Cortex Agents API와는 다르며, 키워드 매칭으로
+도구를 선택하는 단순화된 방식을 사용합니다.
+
+실제 Cortex Agents는 LLM이 자율적으로 도구를 선택하고 실행합니다.
+- 참고: https://docs.snowflake.com/en/user-guide/snowflake-cortex/cortex-agents
 """
 
 import streamlit as st

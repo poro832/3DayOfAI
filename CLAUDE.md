@@ -143,14 +143,17 @@ st.chat_message("user"), st.chat_input(), st.write_stream()
 - [x] Day2 코드 (8개) - problems + solutions
 - [x] Day3 코드 (5개) - problems + solutions
 - [x] Day1 노션 문서 (Overview + Step 1-5)
-- [x] Day2 노션 문서 Step 1-2
+- [x] Day2 노션 문서 (Overview + Step 1-4)
+- [x] Day3 노션 문서 (Overview + Step 1-5)
+- [x] 코드 실행 테스트 (문법 검증 완료)
+- [x] Day2 pickle 기반 연계 실습 구현
+- [x] Day3 Agent 시뮬레이션 명시 추가
+- [x] 중복 파일 정리 (11개 삭제)
+- [x] README.md 완성
 
 ### 진행 필요
-- [ ] Day2 노션 문서 Step 3-4
-- [ ] Day3 노션 문서 Step 1-5
-- [x] 코드 실행 테스트
-- [ ] README 완성
 - [ ] GitHub 배포
+- [ ] Streamlit Cloud 배포 테스트 (선택)
 
 ---
 
@@ -160,11 +163,18 @@ st.chat_message("user"), st.chat_input(), st.write_stream()
 notion/Notion_Documents_Final/
 ├── 00_Course_Overview.md      # 전체 과정 소개
 ├── 01_Day1_Overview.md        # Day1 개요
-├── 02_Day1_Step1.md ~ Step5   # Day1 상세 (완료)
+├── 02_Day1_Step1.md ~ Step5   # Day1 상세
 ├── 03_Day2_Overview.md        # Day2 개요
-├── 04_Day2_Step1.md           # 문서 처리 (완료)
-├── 04_Day2_Step2.md           # 벡터 검색 (완료)
+├── 04_Day2_Step1.md           # 문서 처리
+├── 04_Day2_Step2.md           # 벡터 검색
+├── 04_Day2_Step3.md           # RAG 챗봇
+├── 04_Day2_Step4.md           # 히스토리 & 출처
 ├── 05_Day3_Overview.md        # Day3 개요
+├── 05_Day3_Step1.md           # Function Calling
+├── 05_Day3_Step2.md           # 날씨 조회 Agent
+├── 05_Day3_Step3.md           # 다중 도구 Agent
+├── 05_Day3_Step4.md           # 데이터 분석 Agent
+├── 05_Day3_Step5.md           # 배포 준비
 └── README.md
 ```
 

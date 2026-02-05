@@ -28,11 +28,7 @@ def complete_llm(session, model, prompt):
 
 # TODO: @st.cache_data 데코레이터 추가
 def get_ai_response(question, _session):
-    response = Complete(
-        model="llama3.1-70b",
-        prompt=question,
-        session=_session
-    )
+    response = complete_llm(_session, "llama3.1-70b", question)
     return response
 
 session = get_snowflake_session()

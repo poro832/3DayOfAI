@@ -2,9 +2,11 @@
 Day 3 - Step 1: Function Calling 기초
 
 학습 목표:
-- Function Calling 이해
-- 도구 정의 및 사용
-- 시간 조회 Agent
+- Agent의 기본 개념 이해 (도구 정의 + 도구 선택 + 실행)
+- 키워드 기반 도구 선택 패턴 학습
+
+[참고] 이 실습은 Agent 개념 학습을 위한 '시뮬레이션'입니다.
+실제 Cortex Agents API와 다르며, 키워드 매칭으로 도구를 선택합니다.
 
 실행:
 streamlit run app_1_1.py

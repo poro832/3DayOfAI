@@ -1,5 +1,17 @@
 """
 Day 3 - Step 3: 다중 도구 Agent (정답)
+
+[학습 목표]
+- 여러 도구를 가진 Agent 구현
+- 사용자 의도에 따른 도구 라우팅
+
+[참고]
+이 실습은 Agent 개념을 학습하기 위한 '시뮬레이션'입니다.
+- 도구 선택: 키워드 기반 패턴 매칭 (if-elif 분기)
+- 실제 Cortex Agents: LLM이 도구 설명을 보고 자율적으로 선택
+
+실제 Agent 시스템에서는 LLM이 tools 배열의 description을 분석하여
+적절한 도구를 자동으로 선택합니다.
 """
 
 import streamlit as st

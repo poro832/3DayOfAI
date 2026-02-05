@@ -42,7 +42,7 @@ uploaded_file = None  # TODO를 완성하세요
 if uploaded_file:
     # TODO: 파일 타입에 따라 텍스트 추출
     # PDF: PdfReader 사용
-    # TXT: read().decode("utf-8") 사용
+    # TXT: 여러 인코딩 시도 (utf-8, cp949, euc-kr)
 
 
 

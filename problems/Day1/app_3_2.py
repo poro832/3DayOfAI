@@ -48,11 +48,7 @@ if user_question:
         prompt = f"{user_question}\n\n상세하고 구체적으로 설명해주세요."
     
     with st.spinner("생각하는 중..."):
-        response = Complete(
-            model=selected_model,
-            prompt=prompt,
-            session=session
-        )
+        response = complete_llm(session, selected_model, prompt)
     
     st.write("### AI 답변")
     st.write(response)

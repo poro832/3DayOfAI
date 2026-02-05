@@ -1,5 +1,18 @@
 """
 Day 3 - Step 4: 데이터 분석 Agent (정답)
+
+[학습 목표]
+- 데이터 분석 도구 구현
+- 자연어 질문 → 분석 결과 변환
+
+[참고]
+이 실습은 Agent 개념을 학습하기 위한 '시뮬레이션'입니다.
+- 데이터: 하드코딩된 샘플 DataFrame
+- 분석: 키워드 기반 분기 처리
+
+실제 Snowflake Cortex Analyst는 자연어를 SQL로 변환하여
+실제 데이터베이스를 조회합니다.
+- 참고: https://docs.snowflake.com/en/user-guide/snowflake-cortex/cortex-analyst
 """
 
 import streamlit as st

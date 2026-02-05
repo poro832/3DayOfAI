@@ -50,14 +50,9 @@ if user_input:
     #       ])
     conversation = user_input  # TODO를 완성하세요 (위 힌트 참고)
 
-    # TODO: 컨텍스트 포함하여 AI 응답 생성 (스트리밍)
+    # TODO: 컨텍스트 포함하여 AI 응답 생성
     with st.chat_message("assistant"):
-        ai_response_stream = Complete(
-            model="llama3.1-70b",
-            prompt=conversation,  # TODO: 전체 대화 사용
-            session=session,
-            stream=True
-        )
-        ai_response = st.write_stream(ai_response_stream)
+        ai_response = complete_llm(session, "llama3.1-70b", conversation)
+        st.write(ai_response)
     
     st.session_state.messages.append({"role": "assistant", "content": ai_response})

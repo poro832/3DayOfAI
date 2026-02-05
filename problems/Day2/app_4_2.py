@@ -87,8 +87,8 @@ if user_input:
     prompt = f"다음 문서를 참고하여 답변하세요:\n\n{context}\n\n질문: {user_input}"
     
     with st.chat_message("assistant"):
-        response_stream = Complete(model="llama3.1-70b", prompt=prompt, session=session, stream=True)
-        response = st.write_stream(response_stream)
+        response = complete_llm(session, "llama3.1-70b", prompt)
+        st.write(response)
         
         # TODO: 출처 표시 추가
         

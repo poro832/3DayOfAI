@@ -53,11 +53,7 @@ if user_input:
     
     # AI 응답
     with st.spinner("생각하는 중..."):
-        ai_response = Complete(
-            model="llama3.1-70b",
-            prompt=user_input,
-            session=session
-        )
+        ai_response = complete_llm(session, "llama3.1-70b", user_input)
     
     # TODO: AI 메시지 추가 및 표시
     st.session_state.messages.append({"role": "assistant", "content": ai_response})

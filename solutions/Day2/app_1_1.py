@@ -27,7 +27,14 @@ if uploaded_file:
         for page in reader.pages:
             text += page.extract_text()
     else:
-        text = uploaded_file.read().decode("utf-8")
+        # 여러 인코딩 시도 (UTF-8, CP949, EUC-KR)
+        raw = uploaded_file.read()
+        for encoding in ['utf-8', 'cp949', 'euc-kr', 'latin-1']:
+            try:
+                text = raw.decode(encoding)
+                break
+            except UnicodeDecodeError:
+                continue
 
     st.session_state['document_text'] = text
 
