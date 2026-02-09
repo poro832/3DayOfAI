@@ -48,53 +48,24 @@ df = get_sample_data()
 st.write("### 샘플 데이터")
 st.dataframe(df)
 
-# TODO: 분석 도구 정의
-# 힌트: tools = [
-#     {
-#         "type": "function",
-#         "function": {
-#             "name": "get_stats",
-#             "description": "데이터 통계를 반환합니다",
-#             "parameters": {"type": "object", "properties": {}}
-#         }
-#     },
-#     {
-#         "type": "function",
-#         "function": {
-#             "name": "get_top_products",
-#             "description": "상위 제품을 반환합니다",
-#             "parameters": {
-#                 "type": "object",
-#                 "properties": {
-#                     "by": {"type": "string", "description": "정렬 기준 (판매량/가격/평점)"},
-#                     "n": {"type": "integer", "description": "개수"}
-#                 }
-#             }
-#         }
-#     }
-# ]
+# TODO: 분석 도구 정의 (get_stats, get_top_products)
+# 힌트: app_1_1.py 패턴 참고, get_top_products는 by(정렬기준)와 n(개수) 파라미터 필요
 tools = []  # TODO를 완성하세요
 
 # TODO: 분석 함수 구현
 def get_stats():
     """데이터 기본 통계"""
-    # 힌트: return {
-    #           "총 제품 수": len(df),
-    #           "평균 가격": f"{df['가격'].mean():,.0f}원",
-    #           "총 판매량": f"{df['판매량'].sum():,}개",
-    #           "평균 평점": f"{df['평점'].mean():.1f}점"
-    #       }
+    # 힌트: df의 mean(), sum() 등을 활용하여 통계 딕셔너리 반환
     return {}  # TODO를 완성하세요
 
 def get_top_products(by="판매량", n=3):
     """상위 제품 조회"""
-    # 힌트: return df.nlargest(n, by)[["제품", by]].to_dict("records")
+    # 힌트: df.nlargest()로 상위 n개 추출
     return []  # TODO를 완성하세요
 
 def filter_by_category(category):
     """카테고리별 필터링"""
-    # 힌트: filtered = df[df["카테고리"] == category]
-    #       return filtered.to_dict("records")
+    # 힌트: df[df["카테고리"] == category]로 필터링
     return []  # TODO를 완성하세요
 
 st.write("### 질문 예시")
@@ -108,34 +79,8 @@ user_input = st.text_input("질문", "가장 많이 팔린 제품은?")
 if user_input and st.button("분석"):
     with st.spinner("분석 중..."):
         # TODO: 키워드 기반 분석 수행
-        # 힌트:
-        # if any(word in user_input for word in ["통계", "전체", "요약"]):
-        #     stats = get_stats()
-        #     st.write("### 📈 데이터 통계")
-        #     for key, value in stats.items():
-        #         st.write(f"- **{key}**: {value}")
-        #
-        # elif any(word in user_input for word in ["많이", "판매", "인기"]):
-        #     top = get_top_products(by="판매량", n=3)
-        #     st.write("### 🏆 판매량 TOP 3")
-        #     for i, item in enumerate(top, 1):
-        #         st.write(f"{i}. **{item['제품']}** - {item['판매량']:,}개")
-        #
-        # elif any(word in user_input for word in ["평점", "높은"]):
-        #     top = get_top_products(by="평점", n=3)
-        #     st.write("### ⭐ 평점 TOP 3")
-        #     for i, item in enumerate(top, 1):
-        #         st.write(f"{i}. **{item['제품']}** - {item['평점']}점")
-        #
-        # elif "전자기기" in user_input:
-        #     filtered = filter_by_category("전자기기")
-        #     st.write("### 🖥️ 전자기기 카테고리")
-        #     st.dataframe(pd.DataFrame(filtered))
-        #
-        # else:
-        #     # 키워드 매칭 안 되면 LLM에게 질문
-        #     prompt = f"데이터:\n{df.to_string()}\n\n질문: {user_input}"
-        #     response = complete_llm(session, "llama3.1-70b", prompt)
-        #     st.write(response)
+        # 힌트: 통계/판매/평점/카테고리 키워드에 따라 if-elif 분기
+        #       각 분기에서 get_stats(), get_top_products(), filter_by_category() 호출
+        #       매칭 안 되면 LLM에게 데이터와 함께 질문
 
         st.info("💡 TODO를 완성하세요")

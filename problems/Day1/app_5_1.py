@@ -44,11 +44,9 @@ if user_input:
         st.write(user_input)
     
     # TODO: 전체 대화 히스토리 구성
-    # 힌트: conversation = "\n".join([
-    #           f"{msg['role']}: {msg['content']}"
-    #           for msg in st.session_state.messages
-    #       ])
-    conversation = user_input  # TODO를 완성하세요 (위 힌트 참고)
+    # 힌트: st.session_state.messages의 모든 메시지를 하나의 문자열로 합치세요
+    #       각 메시지는 "role: content" 형태로 조합
+    conversation = user_input  # TODO를 완성하세요
 
     # TODO: 컨텍스트 포함하여 AI 응답 생성
     with st.chat_message("assistant"):

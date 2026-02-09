@@ -32,8 +32,8 @@ session = get_snowflake_session()
 
 st.title("🎚️ 온도 조절 챗봇")
 
-# TODO: 슬라이더로 Temperature 조절
-# 힌트: temperature = st.slider("Temperature (창의성)", 0.0, 1.0, 0.7)
+# TODO: 슬라이더로 Temperature 조절 (0.0 ~ 1.0, 기본값 0.7)
+# 힌트: st.slider() 함수를 사용하세요
 temperature = 0.7  # TODO를 완성하세요
 
 st.write(f"현재 Temperature: {temperature}")
@@ -42,14 +42,8 @@ user_question = st.text_input("질문을 입력하세요")
 
 if user_question:
     # TODO: temperature에 따라 프롬프트 스타일 변경
-    # 힌트:
-    # if temperature < 0.3:
-    #     style = "정확하고 간결하게 답변하세요."
-    # elif temperature < 0.7:
-    #     style = "명확하게 답변하세요."
-    # else:
-    #     style = "창의적이고 다양한 관점에서 답변하세요."
-    # prompt = f"{user_question}\n\n({style})"
+    # 힌트: temperature 값 구간(낮음/중간/높음)에 따라 다른 style 문자열을 만들고
+    #       user_question과 합쳐서 prompt를 구성하세요
 
     prompt = user_question  # TODO를 완성하세요
 

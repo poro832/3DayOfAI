@@ -61,11 +61,7 @@ for message in st.session_state.messages:
     with st.chat_message(message["role"]):
         st.write(message["content"])
         # TODO: 출처가 있으면 표시
-        # 힌트: if "sources" in message:
-        #           with st.expander("📄 참고 문서"):
-        #               for i, source in enumerate(message["sources"]):
-        #                   st.write(f"**출처 {i+1}**")
-        #                   st.write(source[:150] + "...")
+        # 힌트: message에 "sources" 키가 있으면 st.expander()로 펼쳐서 표시
         
 
 user_input = st.chat_input("질문하세요...")

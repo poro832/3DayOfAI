@@ -30,14 +30,11 @@ session = get_snowflake_session()
 st.title("🤖 모델 선택 챗봇")
 
 # TODO: 모델 선택 셀렉트박스
-# 힌트: selected_model = st.selectbox(
-#           "모델 선택",
-#           ["llama3.1-70b", "llama3.1-405b", "mixtral-8x7b"]
-#       )
+# 힌트: st.selectbox()로 모델 목록 중 선택하게 하세요
 selected_model = "llama3.1-70b"  # TODO를 완성하세요
 
 # TODO: 상세 설명 체크박스
-# 힌트: detailed = st.checkbox("상세한 설명 포함")
+# 힌트: st.checkbox()를 사용하세요
 detailed = False  # TODO를 완성하세요
 
 user_question = st.text_input("질문을 입력하세요")

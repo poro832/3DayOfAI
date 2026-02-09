@@ -44,14 +44,8 @@ else:
 st.write("## 2️⃣ 필수 파일 체크")
 
 # TODO: 필수 파일 목록 작성
-# 힌트:
-# files = {
-#     "requirements.txt": "패키지 목록",
-#     ".streamlit/secrets.toml": "비밀 설정 (로컬용)",
-#     "app.py 또는 메인 파일": "앱 진입점"
-# }
-# for file, desc in files.items():
-#     st.write(f"- 📄 `{file}` - {desc}")
+# 힌트: 배포에 필요한 파일 3개(requirements.txt, secrets.toml, 메인 파일)를
+#       딕셔너리로 정의하고 st.write()로 표시
 
 st.info("💡 TODO를 완성하세요")
 
@@ -66,14 +60,8 @@ pandas>=2.0.0
 """, language="text")
 
 st.write("## 4️⃣ Streamlit Cloud 배포 단계")
-# TODO: 배포 단계 작성
-# 힌트:
-# 1. GitHub에 코드 푸시
-# 2. streamlit.io/cloud 접속
-# 3. New app 클릭
-# 4. 레포지토리 선택
-# 5. secrets 설정 (Advanced settings)
-# 6. Deploy 클릭
+# TODO: 배포 6단계 작성
+# 힌트: GitHub 푸시부터 Deploy까지 순서대로 리스트로 작성하고 st.write()로 표시
 
 st.write("## 5️⃣ Secrets 설정 (Streamlit Cloud)")
 st.code("""

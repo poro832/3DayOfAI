@@ -71,13 +71,13 @@ if user_question:
     top_chunks = [st.session_state['chunks'][idx] for idx, _ in similarities[:3]]
     
     # TODO: 3. RAG 프롬프트 생성
-    # 힌트: context = "\n\n".join(top_chunks)
-    #       prompt = f"다음 문서를 참고하여 답변하세요:\n\n{context}\n\n질문: {user_question}"
+    # 힌트: top_chunks를 하나의 context 문자열로 합치고,
+    #       "문서를 참고하여 답변하세요" 형태의 프롬프트 구성
     context = ""  # TODO를 완성하세요
     prompt = user_question  # TODO를 완성하세요
 
     # TODO: 4. LLM으로 답변 생성
-    # 힌트: response = complete_llm(session, "llama3.1-70b", prompt)
+    # 힌트: complete_llm() 함수 활용
     response = "TODO를 완성하세요"  # TODO를 완성하세요
 
     st.write("### 답변")

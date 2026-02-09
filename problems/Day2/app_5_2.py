@@ -157,9 +157,9 @@ if query and st.button("🔍 검색"):
 
     # TODO: 하이브리드 점수 계산 (가중 평균)
     if search_mode == "하이브리드":
-        # 힌트: all_indices = set(keyword_scores.keys()) | set(semantic_scores.keys())
-        #       hybrid_scores = {idx: alpha * keyword_scores.get(idx, 0) + (1 - alpha) * semantic_scores.get(idx, 0) for idx in all_indices}
-        #       results["hybrid"] = sorted(hybrid_scores.items(), key=lambda x: x[1], reverse=True)[:top_k]
+        # 힌트: 두 검색의 인덱스를 합치고 (set union)
+        #       hybrid = alpha × keyword_score + (1-alpha) × semantic_score
+        #       결과를 정렬하여 results["hybrid"]에 저장
         st.info("TODO를 완성하세요: 하이브리드 점수 계산")
 
     # 결과 표시

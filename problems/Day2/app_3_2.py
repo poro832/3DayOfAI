@@ -72,14 +72,7 @@ if user_question:
     prompt = f"다음 문서를 참고하여 답변하세요:\n\n{context}\n\n질문: {user_question}"
     
     # TODO: 스트리밍 응답 추가
-    # 힌트: def stream_text(text):
-    #           import time
-    #           words = text.split()
-    #           for word in words:
-    #               yield word + ' '
-    #               time.sleep(0.02)
-    #
-    #       response = complete_llm(session, "llama3.1-70b", prompt)
-    #       st.write_stream(stream_text(response))
-    
+    # 힌트: yield로 단어를 하나씩 반환하는 generator 함수를 만들고
+    #       complete_llm() 결과를 st.write_stream()으로 출력
+
     st.write("### 답변")

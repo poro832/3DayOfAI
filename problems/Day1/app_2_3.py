@@ -52,7 +52,6 @@ topic = st.text_input("주제를 입력하세요", placeholder="예: 월요일 �
 
 if topic:
     # TODO: content_type, tone, topic을 조합한 프롬프트로 스트리밍 출력하기
-    # 힌트: prompt = f"다음 조건에 맞는 {content_type}를 작성해주세요.\n톤: {tone}\n주제: {topic}\n한국어로 작성해주세요."
-    #       response = complete_llm(session, "llama3.1-70b", prompt)
-    #       st.write_stream(stream_text(response))
+    # 힌트: f-string으로 세 변수를 조합한 프롬프트를 만들고
+    #       complete_llm() → stream_text() → st.write_stream() 순서로 호출
     pass

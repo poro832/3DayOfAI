@@ -82,7 +82,7 @@ class ToolRegistry:
     def get_schema(self):
         """LLM에게 보여줄 스키마"""
         # TODO: 각 도구의 name, description, parameters만 추출하여 리스트로 반환
-        # 힌트: return [{"name": t["name"], "description": t["description"], "parameters": t["parameters"]} for t in self.tools.values()]
+        # 힌트: self.tools.values()를 순회하며 handler를 제외한 정보만 추출
         return []
 
     def execute(self, tool_name, params):

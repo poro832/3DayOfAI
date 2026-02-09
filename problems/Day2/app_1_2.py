@@ -49,12 +49,8 @@ def chunk_text(text, chunk_size=500, overlap=50):
         overlap: 중복 크기
     """
     # TODO: 청크 리스트 생성
-    # 힌트: chunks = []
-    #       start = 0
-    #       while start < len(text):
-    #           end = start + chunk_size
-    #           chunks.append(text[start:end])
-    #           start += chunk_size - overlap
+    # 힌트: while 루프로 start 위치를 이동하며 text[start:end] 슬라이싱
+    #       다음 시작점 = start + chunk_size - overlap
 
     pass
 

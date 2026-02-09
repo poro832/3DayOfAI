@@ -49,8 +49,7 @@ if 'embeddings' not in st.session_state:
     st.stop()
 
 # TODO: 메시지 히스토리 초기화
-# 힌트: if "messages" not in st.session_state:
-#           st.session_state.messages = []
+# 힌트: st.session_state에 messages 키가 없으면 빈 리스트로 초기화
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
@@ -61,14 +60,11 @@ def cosine_similarity(vec1, vec2):
 st.info("💡 예시: 코끼리는 하루에 얼마나 먹어? / 상어의 특징은? / 꿀벌은 어떻게 소통해?")
 
 # TODO: 이전 메시지 표시
-# 힌트: for message in st.session_state.messages:
-#           with st.chat_message(message["role"]):
-#               st.write(message["content"])
+# 힌트: messages를 순회하며 st.chat_message()로 role별 말풍선 표시
 
 
-# TODO: 사용자 입력
-# 힌트: user_input = st.chat_input("질문하세요...")
-user_input = st.chat_input("질문하세요...")  # TODO를 완성하세요
+# TODO: 사용자 입력 (st.chat_input 사용)
+user_input = st.chat_input("질문하세요...")
 
 if user_input:
     # TODO: 사용자 메시지 추가 및 표시

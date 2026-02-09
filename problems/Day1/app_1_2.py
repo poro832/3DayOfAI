@@ -30,16 +30,11 @@ session = get_snowflake_session()
 st.title("🤖 나의 첫 AI 대화")
 
 # TODO: 사용자 질문 입력받기
-# 힌트: user_question = st.text_input("질문을 입력하세요")
+# 힌트: st.text_input() 함수를 사용하세요
 user_question = None  # TODO를 완성하세요
 
 # TODO: 질문이 있을 때 AI 응답 받기
 if user_question:
-    # TODO: complete_llm 함수 호출
-    # 힌트: with st.spinner("생각하는 중..."):
-    #           response = complete_llm(session, "llama3.1-70b", user_question)
-
-    # TODO: 응답 출력
-    # 힌트: st.write("### AI 답변")
-    #       st.write(response)
+    # TODO: complete_llm 함수로 AI 응답을 받고, st.write()로 출력하세요
+    # 힌트: st.spinner()로 로딩 표시, complete_llm()으로 응답 받기
     pass  # TODO를 완성하면 이 줄을 삭제하세요

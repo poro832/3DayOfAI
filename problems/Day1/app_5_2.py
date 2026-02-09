@@ -29,24 +29,17 @@ session = get_snowflake_session()
 
 st.title("🎯 완성형 챗봇")
 
-# TODO: 시스템 프롬프트 정의
-# 힌트: SYSTEM_PROMPT = "당신은 친절하고 도움이 되는 AI 어시스턴트입니다. 한국어로 답변해주세요."
+# TODO: 시스템 프롬프트 정의 (AI의 역할과 성격을 지정)
+# 힌트: AI의 역할, 답변 언어, 스타일 등을 문자열로 정의하세요
 SYSTEM_PROMPT = "당신은 AI 어시스턴트입니다."  # TODO를 완성하세요
 
 # TODO: 시스템 메시지 포함하여 초기화
-# 힌트: if "messages" not in st.session_state:
-#           st.session_state.messages = [
-#               {"role": "system", "content": SYSTEM_PROMPT}
-#           ]
+# 힌트: messages 리스트에 system role 메시지를 첫 번째로 추가
 if "messages" not in st.session_state:
     st.session_state.messages = [{"role": "system", "content": SYSTEM_PROMPT}]
 
-# TODO: 사이드바에 대화 관리 패널
-# 힌트: with st.sidebar:
-#           st.write("### 💬 대화 관리")
-#           if st.button("대화 초기화"):
-#               st.session_state.messages = [{"role": "system", "content": SYSTEM_PROMPT}]
-#               st.rerun()
+# TODO: 사이드바에 대화 관리 패널 (초기화 버튼)
+# 힌트: with st.sidebar: 블록에 st.button()으로 초기화 기능 구현
 
 
 for message in st.session_state.messages:

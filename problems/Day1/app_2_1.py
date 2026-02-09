@@ -42,6 +42,5 @@ if user_question:
             time.sleep(0.02)
 
     # TODO: LLM 응답을 받아서 스트리밍으로 출력하기
-    # 힌트: response = complete_llm(session, "llama3.1-70b", user_question)
-    #       st.write_stream(stream_text(response))
-    
+    # 힌트: complete_llm()으로 응답을 받고, st.write_stream()과 stream_text()를 조합하세요
+    pass  # TODO를 완성하면 이 줄을 삭제하세요

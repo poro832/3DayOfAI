@@ -131,11 +131,9 @@ def search_documents(query, top_k=3):
         return results[:top_k]
 
     # TODO: 벡터 검색 - 쿼리를 임베딩한 후 유사도 계산
-    # 힌트: safe_query = escape_sql_string(query)
-    #       query_sql = f"""SELECT SNOWFLAKE.CORTEX.EMBED_TEXT_768('snowflake-arctic-embed-m', '{safe_query}') as embedding"""
-    #       query_emb = session.sql(query_sql).collect()[0]['EMBEDDING']
+    # 힌트: EMBED_TEXT_768 SQL 함수로 쿼리 임베딩을 생성하세요
     safe_query = escape_sql_string(query)
-    query_emb = None  # TODO: 위 힌트를 참고하여 query_emb를 구하세요
+    query_emb = None  # TODO를 완성하세요
 
     if query_emb is None:
         return [(0, 0.5, chunks[0])] if chunks else []

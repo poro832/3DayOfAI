@@ -72,8 +72,8 @@ if 'embeddings' not in st.session_state:
 # TODO: 코사인 유사도 함수 작성
 def cosine_similarity(vec1, vec2):
     """두 벡터의 코사인 유사도 계산"""
-    # TODO: numpy 사용
-    # 힌트: return np.dot(vec1, vec2) / (np.linalg.norm(vec1) * np.linalg.norm(vec2))
+    # TODO: numpy의 dot(내적)과 norm(크기)을 사용하세요
+    # 힌트: 코사인 유사도 = 내적 / (벡터A 크기 × 벡터B 크기)
     pass
 
 # 예시 질문 (sample_data/animals.txt 사용 시)
