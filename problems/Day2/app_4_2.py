@@ -60,9 +60,10 @@ st.info("💡 예시: 판다는 무엇을 먹어? / 나비의 이동 거리는? 
 for message in st.session_state.messages:
     with st.chat_message(message["role"]):
         st.write(message["content"])
-        # TODO: 출처가 있으면 표시
-        # 힌트: message에 "sources" 키가 있으면 st.expander()로 펼쳐서 표시
-        
+        # TODO 1: 출처가 있으면 표시 (4줄)
+        # 힌트: "sources" in message 체크 → st.expander() → for 루프 → st.write()
+        pass  # TODO를 완성하세요
+
 
 user_input = st.chat_input("질문하세요...")
 
@@ -89,8 +90,11 @@ if user_input:
         response = complete_llm(session, "llama3.1-70b", prompt)
         st.write(response)
         
-        # TODO: 출처 표시 추가
-        
-    
-    # TODO: 출처 정보와 함께 메시지 저장
-    
+        # TODO 2: 현재 응답의 출처 표시 (4줄)
+        # 힌트: st.expander("📄 참고 문서") 안에서 top_chunks를 for 루프로 표시
+        pass  # TODO를 완성하세요
+
+    # TODO 3: 출처 정보와 함께 메시지 저장 (1줄)
+    # 힌트: messages.append({"role": "assistant", "content": response, "sources": top_chunks})
+    pass  # TODO를 완성하세요
+

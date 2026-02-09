@@ -14,21 +14,15 @@ def get_snowflake_session():
     connection_parameters = st.secrets["connections"]["snowflake"]
     return Session.builder.configs(connection_parameters).create()
 
-def escape_sql_string(text):
-    """SQL 인젝션 방지를 위한 이스케이프"""
-    if text is None:
-        return ""
-    return text.replace("'", "''").replace("\\", "\\\\")
+def complete_llm(session, model, prompt):
+    """SQL 방식으로 Cortex LLM 호출"""
+    escaped_prompt = prompt.replace("'", "''")
+    sql = f"SELECT SNOWFLAKE.CORTEX.COMPLETE('{model}', '{escaped_prompt}')"
+    result = session.sql(sql).collect()
+    return result[0][0]
 
-def cosine_similarity(vec1, vec2):
-    """코사인 유사도 계산"""
-    return np.dot(vec1, vec2) / (np.linalg.norm(vec1) * np.linalg.norm(vec2))
 
-try:
-    session = get_snowflake_session()
-except Exception as e:
-    st.error(f"Snowflake 연결 실패: {e}")
-    st.stop()
+session = get_snowflake_session()
 
 st.title("🔍 유사도 검색")
 
@@ -65,8 +59,13 @@ if os.path.exists(embeddings_path):
         st.session_state['embeddings'] = pickle.load(f)
 
 if 'embeddings' not in st.session_state:
-    st.warning("먼저 임베딩을 생성하세요 (app_2_1.py)")
+    st.warning("먼저 임베딩을 생성하세요")
     st.stop()
+
+# 코사인 유사도 함수
+def cosine_similarity(vec1, vec2):
+    """두 벡터의 코사인 유사도 계산"""
+    return np.dot(vec1, vec2) / (np.linalg.norm(vec1) * np.linalg.norm(vec2))
 
 # 예시 질문 (sample_data/animals.txt 사용 시)
 st.info("💡 예시 질문: 사자, 코끼리 특징, 펭귄 먹이, 가장 빠른 동물")
@@ -74,34 +73,22 @@ st.info("💡 예시 질문: 사자, 코끼리 특징, 펭귄 먹이, 가장 빠
 user_query = st.text_input("검색어 입력", placeholder="예: 코끼리는 하루에 물을 얼마나 마셔?")
 
 if user_query and st.button("검색"):
-    try:
-        with st.spinner("검색 중..."):
-            # SQL 인젝션 방지
-            safe_query = escape_sql_string(user_query)
-            query_sql = f"""
-            SELECT SNOWFLAKE.CORTEX.EMBED_TEXT_768(
-                'snowflake-arctic-embed-m',
-                '{safe_query}'
-            ) as embedding
-            """
-            query_embedding = session.sql(query_sql).collect()[0]['EMBEDDING']
+    with st.spinner("검색 중..."):
+        # 쿼리 임베딩 생성
+        query_sql = f"SELECT SNOWFLAKE.CORTEX.EMBED_TEXT_768('snowflake-arctic-embed-m', '{user_query}') as embedding"
+        query_emb = session.sql(query_sql).collect()[0]['EMBEDDING']
 
-            # 유사도 계산
-            similarities = []
-            for i, emb in enumerate(st.session_state['embeddings']):
-                sim = cosine_similarity(query_embedding, emb)
-                similarities.append((i, sim))
+        # 각 청크와 유사도 계산
+        similarities = []
+        for i, emb in enumerate(st.session_state['embeddings']):
+            sim = cosine_similarity(query_emb, emb)
+            similarities.append((i, sim))
 
-            # 정렬
-            similarities.sort(key=lambda x: x[1], reverse=True)
+        # 유사도 높은 순으로 정렬 후 상위 3개 표시
+        similarities.sort(key=lambda x: x[1], reverse=True)
 
-            # 상위 3개 표시
-            st.write("### 검색 결과")
-            for i, (idx, sim) in enumerate(similarities[:3]):
-                st.write(f"**{i+1}. 유사도: {sim:.3f}**")
-                chunk_text = st.session_state['chunks'][idx]
-                st.write(chunk_text[:200] + "..." if len(chunk_text) > 200 else chunk_text)
-                st.write("---")
-
-    except Exception as e:
-        st.error(f"검색 실패: {e}")
+    st.write("### 검색 결과")
+    for i, (idx, sim) in enumerate(similarities[:3]):
+        st.write(f"**{i+1}. 유사도: {sim:.3f}**")
+        st.write(st.session_state['chunks'][idx][:200] + "...")
+        st.write("---")

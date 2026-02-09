@@ -6,28 +6,39 @@ import streamlit as st
 import pickle
 import os
 from PyPDF2 import PdfReader
-from snowflake.snowpark import Session
 
 DATA_DIR = os.path.dirname(os.path.abspath(__file__))
 
 def get_snowflake_session():
+    """Snowflake 세션 생성 (Day1에서 배운 내용)"""
+    from snowflake.snowpark import Session
     connection_parameters = st.secrets["connections"]["snowflake"]
     return Session.builder.configs(connection_parameters).create()
+
+def complete_llm(session, model, prompt):
+    """SQL 방식으로 Cortex LLM 호출"""
+    escaped_prompt = prompt.replace("'", "''")
+    sql = f"SELECT SNOWFLAKE.CORTEX.COMPLETE('{model}', '{escaped_prompt}')"
+    result = session.sql(sql).collect()
+    return result[0][0]
+
 
 session = get_snowflake_session()
 
 st.title("📁 문서 업로드")
 
+# 파일 업로더
 uploaded_file = st.file_uploader("파일 선택", type=["pdf", "txt"])
 
 if uploaded_file:
+    text = ""
+
     if uploaded_file.type == "application/pdf":
         reader = PdfReader(uploaded_file)
-        text = ""
         for page in reader.pages:
             text += page.extract_text()
     else:
-        # 여러 인코딩 시도 (UTF-8, CP949, EUC-KR)
+        # TXT: 인코딩 자동 감지
         raw = uploaded_file.read()
         for encoding in ['utf-8', 'cp949', 'euc-kr', 'latin-1']:
             try:
@@ -36,6 +47,7 @@ if uploaded_file:
             except UnicodeDecodeError:
                 continue
 
+    # 세션 상태에 저장
     st.session_state['document_text'] = text
 
     # 파일로 저장 (다른 앱과 공유)
@@ -44,3 +56,7 @@ if uploaded_file:
 
     st.success("✅ 문서 업로드 완료!")
     st.write(f"총 {len(text)} 글자")
+
+    if text:
+        with st.expander("📄 미리보기"):
+            st.write(text[:500] + "..." if len(text) > 500 else text)

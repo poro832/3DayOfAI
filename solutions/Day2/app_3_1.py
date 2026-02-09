@@ -13,6 +13,7 @@ DATA_DIR = os.path.dirname(os.path.abspath(__file__))
 def get_snowflake_session():
     connection_parameters = st.secrets["connections"]["snowflake"]
     return Session.builder.configs(connection_parameters).create()
+
 def complete_llm(session, model, prompt):
     """SQL 방식으로 Cortex LLM 호출"""
     escaped_prompt = prompt.replace("'", "''")
@@ -21,21 +22,7 @@ def complete_llm(session, model, prompt):
     return result[0][0]
 
 
-def escape_sql_string(text):
-    """SQL 인젝션 방지를 위한 이스케이프"""
-    if text is None:
-        return ""
-    return text.replace("'", "''").replace("\\", "\\\\")
-
-def cosine_similarity(vec1, vec2):
-    """코사인 유사도 계산"""
-    return np.dot(vec1, vec2) / (np.linalg.norm(vec1) * np.linalg.norm(vec2))
-
-try:
-    session = get_snowflake_session()
-except Exception as e:
-    st.error(f"Snowflake 연결 실패: {e}")
-    st.stop()
+session = get_snowflake_session()
 
 st.title("🤖 RAG 챗봇")
 
@@ -51,8 +38,11 @@ if os.path.exists(embeddings_path):
         st.session_state['embeddings'] = pickle.load(f)
 
 if 'embeddings' not in st.session_state:
-    st.warning("먼저 문서를 준비하세요 (app_1_1 ~ app_2_1 실행)")
+    st.warning("먼저 문서를 준비하세요")
     st.stop()
+
+def cosine_similarity(vec1, vec2):
+    return np.dot(vec1, vec2) / (np.linalg.norm(vec1) * np.linalg.norm(vec2))
 
 # 예시 질문 (sample_data/animals.txt 사용 시)
 st.info("💡 예시: 사자는 어디에 살아? / 펭귄은 무엇을 먹어? / 가장 큰 동물은?")
@@ -60,47 +50,32 @@ st.info("💡 예시: 사자는 어디에 살아? / 펭귄은 무엇을 먹어? 
 user_question = st.text_input("질문하세요", placeholder="예: 기린의 목은 얼마나 길어?")
 
 if user_question:
-    try:
-        with st.spinner("답변 생성 중..."):
-            # 1. 쿼리 임베딩 (SQL 인젝션 방지)
-            safe_question = escape_sql_string(user_question)
-            query_sql = f"SELECT SNOWFLAKE.CORTEX.EMBED_TEXT_768('snowflake-arctic-embed-m', '{safe_question}') as embedding"
-            query_emb = session.sql(query_sql).collect()[0]['EMBEDDING']
+    # 1. 쿼리 임베딩
+    query_sql = f"SELECT SNOWFLAKE.CORTEX.EMBED_TEXT_768('snowflake-arctic-embed-m', '{user_question}') as embedding"
+    query_emb = session.sql(query_sql).collect()[0]['EMBEDDING']
 
-            # 2. 유사 청크 찾기
-            similarities = []
-            for i, emb in enumerate(st.session_state['embeddings']):
-                sim = cosine_similarity(query_emb, emb)
-                similarities.append((i, sim))
+    # 2. 유사 청크 찾기
+    similarities = []
+    for i, emb in enumerate(st.session_state['embeddings']):
+        sim = cosine_similarity(query_emb, emb)
+        similarities.append((i, sim))
 
-            similarities.sort(key=lambda x: x[1], reverse=True)
-            top_chunks = [st.session_state['chunks'][idx] for idx, _ in similarities[:3]]
+    similarities.sort(key=lambda x: x[1], reverse=True)
+    top_chunks = [st.session_state['chunks'][idx] for idx, _ in similarities[:3]]
 
-            # 3. RAG 프롬프트 생성
-            context = "\n\n".join(top_chunks)
-            prompt = f"""당신은 친절한 AI 어시스턴트입니다. 반드시 한국어로 답변하세요.
-다음 문서를 참고하여 질문에 답변하세요.
+    # 3. RAG 프롬프트 생성
+    context = "\n\n".join(top_chunks)
+    prompt = f"""다음 문서를 참고하여 답변하세요.
 문서에 없는 내용은 "문서에서 해당 정보를 찾을 수 없습니다"라고 답변하세요.
 
 [참고 문서]
 {context}
 
 [질문]
-{user_question}
+{user_question}"""
 
-[답변]"""
+    # 4. LLM으로 답변 생성
+    response = complete_llm(session, "llama3.1-70b", prompt)
 
-            # 4. LLM 답변 생성
-            response = complete_llm(session, "llama3.1-70b", prompt)
-
-        st.write("### 답변")
-        st.write(response)
-
-        with st.expander("📄 참고한 문서"):
-            for i, chunk in enumerate(top_chunks):
-                st.write(f"**문서 {i+1}**")
-                st.write(chunk[:200] + "..." if len(chunk) > 200 else chunk)
-                st.divider()
-
-    except Exception as e:
-        st.error(f"오류 발생: {e}")
+    st.write("### 답변")
+    st.write(response)

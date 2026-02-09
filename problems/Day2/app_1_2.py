@@ -48,11 +48,14 @@ def chunk_text(text, chunk_size=500, overlap=50):
         chunk_size: 청크 크기
         overlap: 중복 크기
     """
-    # TODO: 청크 리스트 생성
-    # 힌트: while 루프로 start 위치를 이동하며 text[start:end] 슬라이싱
-    #       다음 시작점 = start + chunk_size - overlap
-
-    pass
+    # TODO: 청크를 만들어 리스트에 추가하세요
+    # 힌트: text[start:end]로 슬라이싱, start는 chunk_size - overlap만큼 이동
+    chunks = []
+    start = 0
+    while start < len(text):
+        end = start + chunk_size
+        pass  # TODO: chunks에 텍스트 조각 추가 + start 이동 (2줄)
+    return chunks
 
 # 저장된 문서 로드 시도
 doc_path = os.path.join(DATA_DIR, "document_text.pkl")

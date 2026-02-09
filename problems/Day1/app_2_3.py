@@ -51,7 +51,12 @@ tone = st.selectbox(
 topic = st.text_input("주제를 입력하세요", placeholder="예: 월요일 아침 커피")
 
 if topic and st.button("✨ 생성하기"):
-    # TODO: content_type, tone, topic을 조합한 프롬프트로 스트리밍 출력하기
-    # 힌트: f-string으로 세 변수를 조합한 프롬프트를 만들고
-    #       complete_llm() → stream_text() → st.write_stream() 순서로 호출
+    prompt = f"""다음 조건에 맞는 {content_type}를 작성해주세요.
+톤/스타일: {tone}
+주제: {topic}
+한국어로 작성하고, 해당 콘텐츠 유형에 맞는 형식으로 작성해주세요."""
+
+    st.write("### 생성 결과")
+    # TODO: LLM 호출 후 스트리밍 출력
+    # 힌트: complete_llm() → stream_text() → st.write_stream()
     pass

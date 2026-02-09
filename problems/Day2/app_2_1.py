@@ -77,14 +77,16 @@ if st.button("임베딩 생성"):
     progress_bar = st.progress(0)
     status_text = st.empty()
 
-    # TODO: 각 청크에 대해 임베딩 생성
-    # 힌트: for 루프로 각 청크를 순회하며
-    #       SNOWFLAKE.CORTEX.EMBED_TEXT_768('snowflake-arctic-embed-m', ...) SQL 실행
-    #       escape_sql_string()으로 특수문자 처리 필수!
-    #       결과를 embeddings 리스트에 append
+    # TODO: 각 청크의 임베딩을 생성하여 embeddings에 추가하세요
+    for i, chunk in enumerate(chunks):
+        status_text.text(f"임베딩 생성 중... ({i+1}/{len(chunks)})")
+        safe_chunk = escape_sql_string(chunk)
+        # TODO: SQL로 임베딩 생성 후 embeddings에 추가 (2줄)
+        # 힌트: SNOWFLAKE.CORTEX.EMBED_TEXT_768('snowflake-arctic-embed-m', '{safe_chunk}')
+        pass
+        progress_bar.progress((i + 1) / len(chunks))
 
 
-    
     st.session_state['embeddings'] = embeddings
 
     # 파일로 저장 (다른 앱과 공유)

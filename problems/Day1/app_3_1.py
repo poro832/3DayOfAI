@@ -41,11 +41,16 @@ st.write(f"현재 Temperature: {temperature}")
 user_question = st.text_input("질문을 입력하세요")
 
 if user_question:
-    # TODO: temperature에 따라 프롬프트 스타일 변경
-    # 힌트: temperature 값 구간(낮음/중간/높음)에 따라 다른 style 문자열을 만들고
-    #       user_question과 합쳐서 prompt를 구성하세요
+    # TODO: temperature에 따라 style 문자열 변경
+    # 힌트: 낮으면 "정확하고 간결하게", 중간이면 "명확하게", 높으면 "창의적이고 다양한 관점에서"
+    if temperature < 0.3:
+        style = ""  # TODO를 완성하세요
+    elif temperature < 0.7:
+        style = ""  # TODO를 완성하세요
+    else:
+        style = ""  # TODO를 완성하세요
 
-    prompt = user_question  # TODO를 완성하세요
+    prompt = f"{user_question}\n\n({style})"
 
     with st.spinner("생각하는 중..."):
         response = complete_llm(session, "llama3.1-70b", prompt)

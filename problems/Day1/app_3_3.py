@@ -32,20 +32,25 @@ session = get_snowflake_session()
 
 st.title("⚙️ 설정 가능한 챗봇")
 
-# TODO: 사이드바에 설정 패널 만들기 (모델 선택, Temperature, 상세 설명)
-# 힌트: with st.sidebar: 블록 안에 selectbox, slider, checkbox를 배치하세요
-model = "llama3.1-70b"  # TODO를 완성하세요
-temperature = 0.7  # TODO를 완성하세요
-detailed = False  # TODO를 완성하세요
+with st.sidebar:
+    st.write("### ⚙️ 설정")
+
+    # TODO: 각 위젯을 사이드바 안에 배치하세요
+    # 힌트: st.selectbox(), st.slider(), st.checkbox() 사용
+    model = "llama3.1-70b"  # TODO: st.selectbox("모델 선택", [...])로 교체
+    temperature = 0.7  # TODO: st.slider("Temperature", 0.0, 1.0, 0.7)로 교체
+    detailed = False  # TODO: st.checkbox("상세한 설명 포함")로 교체
 
 user_question = st.text_input("질문을 입력하세요")
 
 if user_question:
-    # TODO: 옵션(detailed, temperature)에 따라 프롬프트 구성하기
-    # 힌트: detailed가 True이면 상세 설명 요청을 추가하고,
-    #       temperature 값에 따라 응답 스타일 지시를 추가하세요
-
-    prompt = user_question  # TODO를 완성하세요
+    # TODO: 옵션에 따라 extra 지시를 추가하세요
+    extra = ""
+    if detailed:
+        extra += " 예시와 함께 상세하게 설명하세요."  # 이미 완성됨
+    if temperature > 0.7:
+        extra += ""  # TODO: 창의적 답변 지시 추가
+    prompt = f"{user_question}{extra}"
 
     with st.spinner("생각하는 중..."):
         response = complete_llm(session, model, prompt)

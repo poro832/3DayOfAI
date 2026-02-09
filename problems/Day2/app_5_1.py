@@ -25,17 +25,18 @@ def complete_llm_with_metrics(session, model, prompt):
     escaped_prompt = prompt.replace("'", "''")
     sql = f"SELECT SNOWFLAKE.CORTEX.COMPLETE('{model}', '{escaped_prompt}')"
 
-    # TODO: 시간 측정 + LLM 호출 + 메트릭 반환
-    # 힌트: time.time()으로 시작/끝 시간 측정, session.sql(sql).collect()로 호출
-    #       반환: {"response": 응답, "latency": 시간, "word_count": 단어수, "char_count": 글자수}
+    # TODO: 시간 측정 후 메트릭 반환 (3줄)
+    # 힌트: time.time()으로 시작/끝 시간 측정
+    start_time = time.time()  # 이미 완성됨
     result = session.sql(sql).collect()
+    latency = 0  # TODO: time.time() - start_time 으로 교체
     response = result[0][0]
 
     return {
         "response": response,
-        "latency": 0,       # TODO: 실제 응답 시간으로 교체
-        "word_count": 0,     # TODO: len(response.split())
-        "char_count": 0      # TODO: len(response)
+        "latency": latency,
+        "word_count": len(response.split()),
+        "char_count": len(response)
     }
 
 

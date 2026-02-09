@@ -32,11 +32,16 @@ session = get_snowflake_session()
 
 st.title("🕐 시간 조회 Agent")
 
-# TODO: 도구 정의 (JSON Schema 형태로 함수 스펙을 정의)
-# 힌트: tools 리스트에 type, function(name, description, parameters)를 포함하는 딕셔너리 추가
+# 도구 정의 (이미 완성됨 - 구조만 확인하세요)
+tools = [{
+    "type": "function",
+    "function": {
+        "name": "get_current_time",
+        "description": "현재 시간을 반환합니다",
+        "parameters": {"type": "object", "properties": {}}
+    }
+}]
 
-
-# TODO: 함수 구현
 def get_current_time():
     """현재 시간 반환"""
     return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -44,7 +49,14 @@ def get_current_time():
 user_input = st.text_input("질문", "지금 몇 시야?")
 
 if user_input and st.button("실행"):
-    # TODO: 키워드 기반으로 도구 선택하기 (시뮬레이션)
-    # 힌트: 시간 관련 키워드가 있으면 get_current_time() 호출,
-    #       없으면 complete_llm()으로 LLM에게 직접 질문
-    pass  # TODO를 완성하면 이 줄을 삭제하세요
+    # TODO: 키워드 기반으로 도구 선택하기 (3줄)
+    # 힌트: 시간 관련 키워드가 있으면 get_current_time(), 없으면 complete_llm()
+    time_keywords = ["시간", "몇 시", "몇시", "time", "시계"]
+    is_time_query = any(kw in user_input.lower() for kw in time_keywords)
+
+    if is_time_query:
+        result = get_current_time()
+        st.write(f"⏰ 현재 시간: {result}")
+    else:
+        # TODO: LLM에게 직접 질문하여 응답 표시 (2줄)
+        pass  # TODO를 완성하세요

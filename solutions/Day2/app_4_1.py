@@ -13,6 +13,7 @@ DATA_DIR = os.path.dirname(os.path.abspath(__file__))
 def get_snowflake_session():
     connection_parameters = st.secrets["connections"]["snowflake"]
     return Session.builder.configs(connection_parameters).create()
+
 def complete_llm(session, model, prompt):
     """SQL 방식으로 Cortex LLM 호출"""
     escaped_prompt = prompt.replace("'", "''")
@@ -48,6 +49,7 @@ if 'embeddings' not in st.session_state:
     st.warning("먼저 문서를 준비하세요")
     st.stop()
 
+# 메시지 히스토리 초기화
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
@@ -65,36 +67,29 @@ for message in st.session_state.messages:
 user_input = st.chat_input("질문하세요...")
 
 if user_input:
-    # 사용자 메시지 추가
+    # 사용자 메시지를 히스토리에 추가하고 화면에 표시
     st.session_state.messages.append({"role": "user", "content": user_input})
     with st.chat_message("user"):
         st.write(user_input)
-    
+
     # RAG 검색
     query_sql = f"SELECT SNOWFLAKE.CORTEX.EMBED_TEXT_768('snowflake-arctic-embed-m', '{user_input}') as embedding"
     query_emb = session.sql(query_sql).collect()[0]['EMBEDDING']
-    
+
     similarities = []
     for i, emb in enumerate(st.session_state['embeddings']):
         sim = cosine_similarity(query_emb, emb)
         similarities.append((i, sim))
-    
+
     similarities.sort(key=lambda x: x[1], reverse=True)
     top_chunks = [st.session_state['chunks'][idx] for idx, _ in similarities[:3]]
-    
+
     context = "\n\n".join(top_chunks)
-    prompt = f"""당신은 친절한 AI 어시스턴트입니다. 반드시 한국어로 짧고 간결하게 답변하세요.
-다음 문서를 참고하여 답변하세요:
+    prompt = f"다음 문서를 참고하여 답변하세요:\n\n{context}\n\n질문: {user_input}"
 
-{context}
-
-질문: {user_input}
-
-답변:"""
-    
-    # AI 응답
+    # AI 응답을 스트리밍으로 표시하고 히스토리에 저장
     with st.chat_message("assistant"):
         response_stream = stream_text(complete_llm(session, "llama3.1-70b", prompt))
         response = st.write_stream(response_stream)
-    
+
     st.session_state.messages.append({"role": "assistant", "content": response})

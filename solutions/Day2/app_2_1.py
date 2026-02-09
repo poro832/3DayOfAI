@@ -13,17 +13,15 @@ def get_snowflake_session():
     connection_parameters = st.secrets["connections"]["snowflake"]
     return Session.builder.configs(connection_parameters).create()
 
-def escape_sql_string(text):
-    """SQL 인젝션 방지를 위한 이스케이프"""
-    if text is None:
-        return ""
-    return text.replace("'", "''").replace("\\", "\\\\")
+def complete_llm(session, model, prompt):
+    """SQL 방식으로 Cortex LLM 호출"""
+    escaped_prompt = prompt.replace("'", "''")
+    sql = f"SELECT SNOWFLAKE.CORTEX.COMPLETE('{model}', '{escaped_prompt}')"
+    result = session.sql(sql).collect()
+    return result[0][0]
 
-try:
-    session = get_snowflake_session()
-except Exception as e:
-    st.error(f"Snowflake 연결 실패: {e}")
-    st.stop()
+
+session = get_snowflake_session()
 
 st.title("🔢 벡터 임베딩")
 
@@ -61,37 +59,30 @@ if 'chunks' not in st.session_state:
 chunks = st.session_state['chunks']
 st.write(f"청크 개수: {len(chunks)}개")
 
+def escape_sql_string(text):
+    """SQL 인젝션 방지 (특수문자 이스케이프)"""
+    if text is None:
+        return ""
+    return text.replace("'", "''").replace("\\", "\\\\")
+
 if st.button("임베딩 생성"):
     embeddings = []
     progress_bar = st.progress(0)
     status_text = st.empty()
 
-    try:
-        for i, chunk in enumerate(chunks):
-            status_text.text(f"임베딩 생성 중... ({i+1}/{len(chunks)})")
+    for i, chunk in enumerate(chunks):
+        status_text.text(f"임베딩 생성 중... ({i+1}/{len(chunks)})")
+        safe_chunk = escape_sql_string(chunk)
+        sql = f"SELECT SNOWFLAKE.CORTEX.EMBED_TEXT_768('snowflake-arctic-embed-m', '{safe_chunk}') as embedding"
+        result = session.sql(sql).collect()
+        embeddings.append(result[0]['EMBEDDING'])
+        progress_bar.progress((i + 1) / len(chunks))
 
-            # SQL 인젝션 방지
-            safe_chunk = escape_sql_string(chunk)
-            query = f"""
-            SELECT SNOWFLAKE.CORTEX.EMBED_TEXT_768(
-                'snowflake-arctic-embed-m',
-                '{safe_chunk}'
-            ) as embedding
-            """
-            result = session.sql(query).collect()
-            embeddings.append(result[0]['EMBEDDING'])
 
-            progress_bar.progress((i + 1) / len(chunks))
+    st.session_state['embeddings'] = embeddings
 
-        st.session_state['embeddings'] = embeddings
+    # 파일로 저장 (다른 앱과 공유)
+    with open(os.path.join(DATA_DIR, "embeddings.pkl"), "wb") as f:
+        pickle.dump(embeddings, f)
 
-        # 파일로 저장 (다른 앱과 공유)
-        with open(os.path.join(DATA_DIR, "embeddings.pkl"), "wb") as f:
-            pickle.dump(embeddings, f)
-
-        status_text.empty()
-        st.success(f"✅ {len(embeddings)}개 임베딩 생성 완료!")
-        st.write(f"벡터 차원: {len(embeddings[0])}")
-
-    except Exception as e:
-        st.error(f"임베딩 생성 실패: {e}")
+    st.success(f"✅ {len(embeddings)}개 임베딩 생성 완료!")

@@ -44,13 +44,20 @@ if uploaded_file:
 
     # TODO 2: 파일 타입에 따라 텍스트 추출
     if uploaded_file.type == "application/pdf":
-        # PDF: PdfReader로 각 페이지 extract_text()
-        # 힌트: reader = PdfReader(uploaded_file) 후 reader.pages 순회
-        pass  # TODO를 완성하세요
+        # TODO: PdfReader로 각 페이지 텍스트 추출
+        # 힌트: reader = PdfReader(uploaded_file) 후 reader.pages 순회하며 extract_text()
+        reader = PdfReader(uploaded_file)
+        for page in reader.pages:
+            pass  # TODO: text에 페이지 텍스트 추가
     else:
-        # TXT: raw bytes를 decode
-        # 힌트: uploaded_file.read()로 바이트 읽고, .decode('utf-8') 등 시도
-        pass  # TODO를 완성하세요
+        # TXT: 인코딩 자동 감지
+        raw = uploaded_file.read()
+        for encoding in ['utf-8', 'cp949', 'euc-kr', 'latin-1']:
+            try:
+                text = raw.decode(encoding)
+                break
+            except UnicodeDecodeError:
+                continue
 
     # 세션 상태에 저장
     st.session_state['document_text'] = text

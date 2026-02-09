@@ -119,8 +119,8 @@ def think_and_act(user_input, history):
     """Agent 사고 및 행동"""
     thinking = []
 
-    # TODO 2: Step 1 - 입력 분석 기록
-    # 힌트: thinking.append({"step": "...", "content": "..."}) 형식으로 기록
+    # TODO 2: Step 1 - 입력 분석 기록 (1줄)
+    # 힌트: thinking.append({"step": "입력 분석", "content": f"사용자 요청: '{user_input}'"})
     pass  # TODO를 완성하세요
 
     # Step 2: 도구 선택
@@ -143,8 +143,9 @@ JSON 응답: {{"thought": "생각", "tool": "도구명 또는 null", "params": {
     except:
         decision = {"thought": "파싱 실패", "tool": None, "answer": response}
 
-    # TODO 3: 추론과 결정을 thinking 리스트에 기록
-    # 힌트: decision에서 "thought"와 "tool" 정보를 추출하여 thinking에 추가
+    # TODO 3: 추론과 결정을 thinking에 기록 (2줄)
+    # 힌트: thinking.append({"step": "추론", "content": decision.get("thought", "")})
+    #       thinking.append({"step": "결정", "content": f"도구: {decision.get('tool', 'None')}"})
     pass  # TODO를 완성하세요
 
     # Step 3: 도구 실행
@@ -152,8 +153,8 @@ JSON 응답: {{"thought": "생각", "tool": "도구명 또는 null", "params": {
         tool_name = decision["tool"]
         params = decision.get("params", {})
 
-        # TODO 4: 도구 호출 기록
-        # 힌트: 어떤 도구가 어떤 파라미터로 호출되었는지 기록
+        # TODO 4: 도구 호출 기록 (1줄)
+        # 힌트: thinking.append({"step": "도구 호출", "content": f"{tool_name}({params})"})
         pass  # TODO를 완성하세요
 
         try:
@@ -205,12 +206,18 @@ if user_input:
 
         st.write(answer)
 
-        # TODO 5: 사고 과정을 시각적으로 표시
-        # 힌트: st.expander 안에 단계별로 다른 색상의 박스 사용
-        #       추론 → st.info, 도구 호출 → st.warning, 결과 → st.success
+        # TODO 5: 단계별 색상 적용 (4줄)
+        # 힌트: 추론 → st.info(), 도구 호출 → st.warning(), 결과 → st.success(), 기타 → st.write()
         with st.expander("🧠 사고 과정", expanded=True):
             for step in thinking:
-                st.write(f"**{step['step']}**: {step['content']}")  # TODO: 단계별 색상 적용
+                if step["step"] == "추론":
+                    st.info(f"💭 **{step['step']}**: {step['content']}")
+                elif step["step"] == "도구 호출":
+                    st.warning(f"🔧 **{step['step']}**: {step['content']}")
+                elif step["step"] == "결과":
+                    pass  # TODO: st.success()로 표시
+                else:
+                    pass  # TODO: st.write()로 표시
 
     st.session_state.agent_messages.append({
         "role": "assistant",

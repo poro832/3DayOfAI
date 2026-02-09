@@ -70,15 +70,21 @@ if user_question:
     similarities.sort(key=lambda x: x[1], reverse=True)
     top_chunks = [st.session_state['chunks'][idx] for idx, _ in similarities[:3]]
     
-    # TODO: 3. RAG 프롬프트 생성
-    # 힌트: top_chunks를 하나의 context 문자열로 합치고,
-    #       "문서를 참고하여 답변하세요" 형태의 프롬프트 구성
-    context = ""  # TODO를 완성하세요
-    prompt = user_question  # TODO를 완성하세요
+    # TODO: 3. RAG 프롬프트 생성 (2줄)
+    # 힌트: "\n\n".join(top_chunks)로 context 만들기
+    context = ""  # TODO: top_chunks를 합쳐서 context 만들기
+    prompt = f"""다음 문서를 참고하여 답변하세요.
+문서에 없는 내용은 "문서에서 해당 정보를 찾을 수 없습니다"라고 답변하세요.
 
-    # TODO: 4. LLM으로 답변 생성
-    # 힌트: complete_llm() 함수 활용
-    response = "TODO를 완성하세요"  # TODO를 완성하세요
+[참고 문서]
+{context}
+
+[질문]
+{user_question}"""
+
+    # TODO: 4. LLM으로 답변 생성 (1줄)
+    # 힌트: complete_llm(session, "llama3.1-70b", prompt)
+    response = ""  # TODO를 완성하세요
 
     st.write("### 답변")
     st.write(response)

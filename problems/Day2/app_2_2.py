@@ -72,9 +72,9 @@ if 'embeddings' not in st.session_state:
 # TODO: 코사인 유사도 함수 작성
 def cosine_similarity(vec1, vec2):
     """두 벡터의 코사인 유사도 계산"""
-    # TODO: numpy의 dot(내적)과 norm(크기)을 사용하세요
-    # 힌트: 코사인 유사도 = 내적 / (벡터A 크기 × 벡터B 크기)
-    pass
+    # TODO: 코사인 유사도 = 내적 / (크기A × 크기B) (1줄)
+    # 힌트: np.dot(vec1, vec2) / (np.linalg.norm(vec1) * np.linalg.norm(vec2))
+    return 0  # TODO를 완성하세요
 
 # 예시 질문 (sample_data/animals.txt 사용 시)
 st.info("💡 예시 질문: 사자, 코끼리 특징, 펭귄 먹이, 가장 빠른 동물")
@@ -82,13 +82,22 @@ st.info("💡 예시 질문: 사자, 코끼리 특징, 펭귄 먹이, 가장 빠
 user_query = st.text_input("검색어 입력", placeholder="예: 코끼리는 하루에 물을 얼마나 마셔?")
 
 if user_query and st.button("검색"):
-    # TODO: 쿼리 임베딩 생성
-    
-    
-    # TODO: 각 청크와 유사도 계산
-    
-    
-    # TODO: 가장 유사한 청크 3개 찾기
-    
-    
+    with st.spinner("검색 중..."):
+        # TODO 1: 쿼리 임베딩 생성 (2줄)
+        # 힌트: EMBED_TEXT_768 SQL 실행 후 결과에서 EMBEDDING 추출
+        query_sql = f"SELECT SNOWFLAKE.CORTEX.EMBED_TEXT_768('snowflake-arctic-embed-m', '{user_query}') as embedding"
+        query_emb = None  # TODO: session.sql(query_sql).collect()로 임베딩 추출
+
+        # TODO 2: 각 청크와 유사도 계산 (3줄)
+        # 힌트: for 루프로 cosine_similarity() 호출, (인덱스, 유사도) 튜플을 리스트에 추가
+        similarities = []
+        pass  # TODO를 완성하세요
+
+        # 유사도 높은 순으로 정렬 후 상위 3개 표시
+        similarities.sort(key=lambda x: x[1], reverse=True)
+
     st.write("### 검색 결과")
+    for i, (idx, sim) in enumerate(similarities[:3]):
+        st.write(f"**{i+1}. 유사도: {sim:.3f}**")
+        st.write(st.session_state['chunks'][idx][:200] + "...")
+        st.write("---")

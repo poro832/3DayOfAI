@@ -28,29 +28,19 @@ st.title("⚙️ 설정 가능한 챗봇")
 with st.sidebar:
     st.write("### ⚙️ 설정")
 
-    model = st.selectbox(
-        "모델 선택",
-        ["llama3.1-70b", "mixtral-8x7b"]
-    )
-
+    model = st.selectbox("모델 선택", ["llama3.1-70b", "mixtral-8x7b"])
     temperature = st.slider("Temperature", 0.0, 1.0, 0.7)
-
     detailed = st.checkbox("상세한 설명 포함")
 
 user_question = st.text_input("질문을 입력하세요")
 
 if user_question:
-    # 프롬프트 구성
-    prompt = user_question
-
+    extra = ""
     if detailed:
-        prompt += "\n\n상세하고 구체적으로 설명해주세요."
-
-    # temperature에 따라 스타일 추가
-    if temperature < 0.3:
-        prompt += "\n(정확하고 간결하게 답변하세요.)"
-    elif temperature >= 0.7:
-        prompt += "\n(창의적이고 다양한 관점에서 답변하세요.)"
+        extra += " 예시와 함께 상세하게 설명하세요."
+    if temperature > 0.7:
+        extra += " 창의적이고 다양한 관점에서 답변하세요."
+    prompt = f"{user_question}{extra}"
 
     with st.spinner("생각하는 중..."):
         response = complete_llm(session, model, prompt)
