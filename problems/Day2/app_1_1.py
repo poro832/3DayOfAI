@@ -35,16 +35,22 @@ session = get_snowflake_session()
 
 st.title("📁 문서 업로드")
 
-# TODO: 파일 업로더 추가 (pdf, txt 지원)
-# 힌트: st.file_uploader()에 type 파라미터로 허용 확장자를 지정하세요
+# TODO 1: 파일 업로더 추가 (pdf, txt 지원)
+# 힌트: st.file_uploader("파일 선택", type=["pdf", "txt"])
 uploaded_file = None  # TODO를 완성하세요
 
 if uploaded_file:
-    # TODO: 파일 타입에 따라 텍스트 추출
-    # 힌트: PDF → PdfReader로 각 페이지 extract_text()
-    #       TXT → raw bytes를 decode (utf-8, cp949 등 여러 인코딩 시도)
+    text = ""
 
-    text = ""  # TODO를 완성하세요
+    # TODO 2: 파일 타입에 따라 텍스트 추출
+    if uploaded_file.type == "application/pdf":
+        # PDF: PdfReader로 각 페이지 extract_text()
+        # 힌트: reader = PdfReader(uploaded_file) 후 reader.pages 순회
+        pass  # TODO를 완성하세요
+    else:
+        # TXT: raw bytes를 decode
+        # 힌트: uploaded_file.read()로 바이트 읽고, .decode('utf-8') 등 시도
+        pass  # TODO를 완성하세요
 
     # 세션 상태에 저장
     st.session_state['document_text'] = text
@@ -55,3 +61,7 @@ if uploaded_file:
 
     st.success("✅ 문서 업로드 완료!")
     st.write(f"총 {len(text)} 글자")
+
+    if text:
+        with st.expander("📄 미리보기"):
+            st.write(text[:500] + "..." if len(text) > 500 else text)
