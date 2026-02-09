@@ -50,7 +50,7 @@ tone = st.selectbox(
 
 topic = st.text_input("주제를 입력하세요", placeholder="예: 월요일 아침 커피")
 
-if topic:
+if topic and st.button("✨ 생성하기"):
     # TODO: content_type, tone, topic을 조합한 프롬프트로 스트리밍 출력하기
     # 힌트: f-string으로 세 변수를 조합한 프롬프트를 만들고
     #       complete_llm() → stream_text() → st.write_stream() 순서로 호출

@@ -47,7 +47,7 @@ if uploaded_file:
     text = ""  # TODO를 완성하세요
 
     # 세션 상태에 저장
-    st.session_state['document_text'] = text (위 힌트 참고)
+    st.session_state['document_text'] = text
 
     # 파일로 저장 (다른 앱과 공유)
     with open(os.path.join(DATA_DIR, "document_text.pkl"), "wb") as f:

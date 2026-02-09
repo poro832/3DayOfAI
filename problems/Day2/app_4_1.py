@@ -28,6 +28,14 @@ def complete_llm(session, model, prompt):
     result = session.sql(sql).collect()
     return result[0][0]
 
+def stream_text(text):
+    """텍스트를 스트리밍처럼 출력"""
+    import time
+    words = text.split()
+    for word in words:
+        yield word + ' '
+        time.sleep(0.02)
+
 
 session = get_snowflake_session()
 

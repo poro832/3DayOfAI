@@ -13,7 +13,7 @@ import streamlit as st
 from snowflake.snowpark import Session
 import time
 
-# TODO: @st.cache_data 데코레이터 추가
+# TODO: @st.cache_resource 데코레이터 추가
 def get_snowflake_session():
     connection_parameters = st.secrets["connections"]["snowflake"]
     return Session.builder.configs(connection_parameters).create()
@@ -50,3 +50,5 @@ if user_question:
     
     if elapsed < 0.1:
         st.success("✅ 캐시에서 가져왔습니다!")
+    else:
+        st.warning("⏳ 첫 응답입니다. (캐시에 저장됨)")

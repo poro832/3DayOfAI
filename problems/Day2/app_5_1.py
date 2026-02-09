@@ -25,17 +25,17 @@ def complete_llm_with_metrics(session, model, prompt):
     escaped_prompt = prompt.replace("'", "''")
     sql = f"SELECT SNOWFLAKE.CORTEX.COMPLETE('{model}', '{escaped_prompt}')"
 
-    # 시간 측정
-    start_time = time.time()
+    # TODO: 시간 측정 + LLM 호출 + 메트릭 반환
+    # 힌트: time.time()으로 시작/끝 시간 측정, session.sql(sql).collect()로 호출
+    #       반환: {"response": 응답, "latency": 시간, "word_count": 단어수, "char_count": 글자수}
     result = session.sql(sql).collect()
-    latency = time.time() - start_time
     response = result[0][0]
 
     return {
         "response": response,
-        "latency": latency,
-        "word_count": len(response.split()),
-        "char_count": len(response)
+        "latency": 0,       # TODO: 실제 응답 시간으로 교체
+        "word_count": 0,     # TODO: len(response.split())
+        "char_count": 0      # TODO: len(response)
     }
 
 
@@ -92,6 +92,7 @@ prompt_options = {
     "설명 요청": "인공지능이란 무엇인지 간단히 설명해주세요.",
     "창작": "봄에 대한 짧은 시를 써주세요.",
     "코드 작성": "Python으로 피보나치 수열을 출력하는 함수를 작성해주세요.",
+    "번역": "Translate to English: 오늘 날씨가 정말 좋습니다.",
     "직접 입력": ""
 }
 

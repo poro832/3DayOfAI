@@ -42,16 +42,13 @@ if "messages" not in st.session_state:
 user_input = st.chat_input("메시지를 입력하세요...")
 
 if user_input:
-    # TODO: 사용자 메시지 추가 및 표시
     st.session_state.messages.append({"role": "user", "content": user_input})
     with st.chat_message("user"):
         st.write(user_input)
-    
-    # AI 응답
+
     with st.spinner("생각하는 중..."):
         ai_response = complete_llm(session, "llama3.1-70b", user_input)
-    
-    # TODO: AI 메시지 추가 및 표시
+
     st.session_state.messages.append({"role": "assistant", "content": ai_response})
     with st.chat_message("assistant"):
         st.write(ai_response)

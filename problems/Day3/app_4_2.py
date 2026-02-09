@@ -75,10 +75,8 @@ class PromptTemplate:
 
     def format(self, **kwargs):
         # TODO: 템플릿의 {변수명}을 실제 값으로 교체
-        result = self.template
-        for var in self.input_variables:
-            result = result.replace(f"{{{var}}}", str(kwargs.get(var, "")))
-        return result
+        # 힌트: self.template에서 {변수명}을 kwargs의 값으로 replace
+        return self.template  # TODO를 완성하세요
 
 
 # TODO 2: OutputParser 클래스 구현
@@ -87,20 +85,14 @@ class OutputParser:
     @staticmethod
     def parse_json(text):
         # TODO: 텍스트에서 JSON 추출
-        try:
-            json_start = text.find('{')
-            json_end = text.rfind('}') + 1
-            if json_start >= 0:
-                return json.loads(text[json_start:json_end])
-        except:
-            pass
-        return {"raw": text}
+        # 힌트: text.find('{')로 JSON 시작 위치를 찾고 json.loads()로 파싱
+        return {"raw": text}  # TODO를 완성하세요
 
     @staticmethod
     def parse_list(text):
         # TODO: 텍스트를 줄 단위 리스트로 변환
-        lines = text.strip().split('\n')
-        return [line.strip('- ').strip() for line in lines if line.strip()]
+        # 힌트: split('\n')으로 나누고 각 줄에서 '- ' 제거
+        return [text]  # TODO를 완성하세요
 
 
 # TODO 3: LLMChain 클래스 구현
@@ -114,16 +106,10 @@ class LLMChain:
 
     def run(self, **kwargs):
         # TODO: 프롬프트 생성 → LLM 호출 → 파싱
-        prompt = self.prompt_template.format(**kwargs)
-        response = complete_llm(self.session, self.model, prompt)
-
-        if self.output_parser:
-            if self.output_parser == "json":
-                return OutputParser.parse_json(response)
-            elif self.output_parser == "list":
-                return OutputParser.parse_list(response)
-
-        return response
+        # 힌트: 1) self.prompt_template.format(**kwargs)로 프롬프트 생성
+        #       2) complete_llm()으로 LLM 호출
+        #       3) self.output_parser가 "json"이면 OutputParser.parse_json() 사용
+        return "TODO를 완성하세요"  # TODO를 완성하세요
 
 
 # TODO 4: Tool 클래스 구현
@@ -135,7 +121,8 @@ class Tool:
         self.func = func
 
     def run(self, *args, **kwargs):
-        return self.func(*args, **kwargs)
+        # TODO: self.func를 args, kwargs와 함께 호출하여 결과 반환
+        return "TODO를 완성하세요"  # TODO를 완성하세요
 
 
 # TODO 5: Agent 클래스 구현
@@ -147,27 +134,12 @@ class Agent:
         self.tools = {t.name: t for t in tools}
 
     def run(self, query):
-        # 도구 선택
-        tools_desc = "\n".join([f"- {t.name}: {t.description}" for t in self.tools.values()])
-
-        decide_prompt = f"""도구를 선택하세요.
-
-도구: {tools_desc}
-
-질문: "{query}"
-
-JSON: {{"tool": "도구명", "input": "입력값"}} 또는 {{"tool": null, "answer": "직접답변"}}"""
-
-        response = complete_llm(self.session, self.model, decide_prompt)
-        decision = OutputParser.parse_json(response)
-
-        # 도구 실행
-        if decision.get("tool") and decision["tool"] in self.tools:
-            tool = self.tools[decision["tool"]]
-            result = tool.run(decision.get("input", ""))
-            return {"tool": decision["tool"], "result": result}
-
-        return {"answer": decision.get("answer", response)}
+        # TODO: 도구 선택 → 실행
+        # 힌트: 1) self.tools의 설명을 LLM에게 전달
+        #       2) LLM이 JSON으로 도구 선택 결과를 반환
+        #       3) 선택된 도구의 .run() 호출
+        #       4) {"tool": "도구명", "result": 결과} 형태로 반환
+        return {"answer": "TODO를 완성하세요"}  # TODO를 완성하세요
 
 
 # 도구 정의

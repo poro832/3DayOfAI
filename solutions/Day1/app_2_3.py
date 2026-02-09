@@ -51,7 +51,7 @@ tone = st.selectbox(
 # 주제 입력
 topic = st.text_input("주제를 입력하세요", placeholder="예: 월요일 아침 커피")
 
-if topic:
+if topic and st.button("✨ 생성하기"):
     # 프롬프트 조합
     prompt = f"""다음 조건에 맞는 {content_type}를 작성해주세요.
 
@@ -61,5 +61,6 @@ if topic:
 한국어로 작성하고, 해당 콘텐츠 유형에 맞는 형식으로 작성해주세요."""
 
     st.write("### 생성 결과")
-    response = complete_llm(session, "llama3.1-70b", prompt)
+    with st.spinner("생성 중..."):
+        response = complete_llm(session, "llama3.1-70b", prompt)
     st.write_stream(stream_text(response))
