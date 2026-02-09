@@ -1,8 +1,30 @@
+# Snowflake secrets (절대 올리면 안 됨!)
 .streamlit/secrets.toml
+**/.streamlit/secrets.toml
+
+# Python
 __pycache__/
 *.py[cod]
 *.pkl
 .Python
 venv/
+.env
+
+# IDE
 .vscode/
+.idea/
+
+# OS
 .DS_Store
+nul
+
+# Project internal files
+.claude/
+.mcp.json
+CLAUDE.md
+QUICK_START.md
+notion/
+docs/
+retouch.txt
+setting.txt
+push_to_notion.py

@@ -15,7 +15,6 @@ Day 3 - Step 2: 날씨 조회 Agent (정답)
 
 import streamlit as st
 from snowflake.snowpark import Session
-import json
 
 def get_snowflake_session():
     connection_parameters = st.secrets["connections"]["snowflake"]

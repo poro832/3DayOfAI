@@ -1,7 +1,0 @@
-Collecting PyPDF2
-  Obtaining dependency information for PyPDF2 from https://files.pythonhosted.org/packages/8e/5e/c86a5643653825d3c913719e788e41386bee415c2b87b4f955432f2de6b2/pypdf2-3.0.1-py3-none-any.whl.metadata
-  Downloading pypdf2-3.0.1-py3-none-any.whl.metadata (6.8 kB)
-Downloading pypdf2-3.0.1-py3-none-any.whl (232 kB)
-   ---------------------------------------- 232.6/232.6 kB 6.9 MB/s eta 0:00:00
-Installing collected packages: PyPDF2
-Successfully installed PyPDF2-3.0.1

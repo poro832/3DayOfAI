@@ -52,7 +52,7 @@ user_input = st.text_input("질문", "지금 몇 시야?")
 
 if user_input and st.button("실행"):
     # TODO: 키워드 기반으로 도구 선택하기 (시뮬레이션)
-    # 힌트: time_keywords = ["시간", "몇 시", "몇시", "time"]
+    # 힌트: time_keywords = ["시간", "몇 시", "몇시", "time", "시계"]
     #       is_time_query = any(kw in user_input.lower() for kw in time_keywords)
     #
     #       if is_time_query:

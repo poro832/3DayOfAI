@@ -12,7 +12,7 @@
 
 ### 특징
 
-- **24개 실습** (Day1: 11개, Day2: 8개, Day3: 5개)
+- **32개 실습** (Day1: 12개, Day2: 10개, Day3: 10개)
 - **problems + solutions 구조** - 직접 코딩하고 정답 확인
 - **Snowflake Cortex AI 기반** - 클라우드 LLM 활용
 - **각 파일 독립 실행 가능** - 원하는 실습만 선택 가능
@@ -28,7 +28,7 @@
 
 ### 2. Python 환경
 
-- Python 3.9 이상 권장
+- Python 3.11 이상 권장
 
 ### 3. 패키지 설치
 
@@ -59,17 +59,16 @@ schema = "your-schema"
 ├── .streamlit/
 │   └── secrets.toml          # Snowflake 연결 정보 (Git 제외)
 ├── problems/                  # 실습 문제 (TODO 포함)
-│   ├── Day1/                  # 11개 파일
-│   ├── Day2/                  # 8개 파일
-│   └── Day3/                  # 5개 파일
+│   ├── Day1/                  # 12개 파일
+│   ├── Day2/                  # 10개 파일
+│   └── Day3/                  # 10개 파일
 ├── solutions/                 # 정답 코드
 │   ├── Day1/
 │   ├── Day2/
 │   └── Day3/
-├── notion/                    # 학습 문서
-│   └── Notion_Documents_Final/
+├── sample_data/               # 실습용 샘플 데이터
+│   └── animals.txt            # Day2 RAG 실습용
 ├── requirements.txt
-├── CLAUDE.md                  # 프로젝트 가이드
 └── README.md
 ```
 
@@ -77,7 +76,7 @@ schema = "your-schema"
 
 ## 커리큘럼
 
-### Day 1: Streamlit & LLM 기초 (11개 실습)
+### Day 1: Streamlit & LLM 기초 (12개 실습)
 
 | Step | 파일 | 학습 내용 |
 |------|------|----------|
@@ -85,6 +84,7 @@ schema = "your-schema"
 | 1-2 | app_1_2.py | 첫 LLM 호출 |
 | 2-1 | app_2_1.py | 스트리밍 응답 |
 | 2-2 | app_2_2.py | 캐싱 성능 개선 |
+| 2-3 | app_2_3.py | AI 콘텐츠 생성기 |
 | 3-1 | app_3_1.py | 온도 조절 챗봇 |
 | 3-2 | app_3_2.py | 모델 선택 챗봇 |
 | 3-3 | app_3_3.py | 사이드바 활용 |
@@ -93,7 +93,7 @@ schema = "your-schema"
 | 5-1 | app_5_1.py | 컨텍스트 챗봇 |
 | 5-2 | app_5_2.py | 시스템 프롬프트 |
 
-### Day 2: RAG 파이프라인 (8개 실습)
+### Day 2: RAG 파이프라인 (10개 실습)
 
 | Step | 파일 | 학습 내용 |
 |------|------|----------|
@@ -105,18 +105,25 @@ schema = "your-schema"
 | 3-2 | app_3_2.py | 스트리밍 RAG 챗봇 |
 | 4-1 | app_4_1.py | 채팅 히스토리 |
 | 4-2 | app_4_2.py | 출처 표시 기능 |
+| 5-1 | app_5_1.py | 모델 비교 (심화) |
+| 5-2 | app_5_2.py | 하이브리드 검색 (심화) |
 
 **Day2 실습은 연계 실습입니다** - 순서대로 진행하세요.
 
-### Day 3: Agent & 배포 (5개 실습)
+### Day 3: Agent & 배포 (10개 실습)
 
 | Step | 파일 | 학습 내용 |
 |------|------|----------|
 | 1-1 | app_1_1.py | Function Calling 기초 |
+| 1-2 | app_1_2.py | 도구 등록 시스템 (심화) |
 | 2-1 | app_2_1.py | 날씨 조회 Agent |
+| 2-2 | app_2_2.py | 다중 파라미터 Agent (심화) |
 | 3-1 | app_3_1.py | 다중 도구 Agent |
+| 3-2 | app_3_2.py | 대화형 Agent (심화) |
 | 4-1 | app_4_1.py | 데이터 분석 Agent |
+| 4-2 | app_4_2.py | 시각화 Agent (심화) |
 | 5-1 | app_5_1.py | 배포 준비 |
+| 5-2 | app_5_2.py | AI 만능 어시스턴트 (심화) |
 
 > **참고**: Day3 Agent 실습은 개념 학습을 위한 시뮬레이션입니다.
 > 실제 Snowflake Cortex Agents API와는 다릅니다.
@@ -190,12 +197,6 @@ SNOWFLAKE.CORTEX.EMBED_TEXT_768('snowflake-arctic-embed-m', 'text')
 
 ---
 
-## 학습 문서
-
-`notion/Notion_Documents_Final/` 폴더에 각 Day별 상세 학습 문서가 있습니다.
-
----
-
 ## 참고 자료
 
 - [Streamlit Documentation](https://docs.streamlit.io)
@@ -212,6 +213,6 @@ SNOWFLAKE.CORTEX.EMBED_TEXT_768('snowflake-arctic-embed-m', 'text')
 
 ---
 
-**총 24개 실습** (문제 + 정답 = 48개 파일)
+**총 32개 실습** (문제 + 정답 = 64개 파일)
 
 Made with ❤️ for AI Learners

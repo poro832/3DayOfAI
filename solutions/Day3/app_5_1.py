@@ -107,14 +107,14 @@ col1, col2, col3 = st.columns(3)
 with col1:
     st.write("### Day 1")
     st.write("Streamlit & LLM 기초")
-    st.write("✅ 11개 실습 완료")
+    st.write("✅ 12개 실습 완료")
 with col2:
     st.write("### Day 2")
     st.write("RAG 파이프라인")
-    st.write("✅ 8개 실습 완료")
+    st.write("✅ 10개 실습 완료")
 with col3:
     st.write("### Day 3")
     st.write("Agent & 배포")
-    st.write("✅ 5개 실습 완료")
+    st.write("✅ 10개 실습 완료")
 
-st.success("🏆 총 24개 실습을 완료했습니다! 축하합니다!")
+st.success("🏆 총 32개 실습을 완료했습니다! 축하합니다!")
