@@ -312,7 +312,7 @@ def format_history(messages, max_turns=5):
 
 
 def select_tool(user_message, model_name, chat_history=None):
-    """Gemini로 도구 선택 (Day 3: Function Calling)"""
+    """Gemini로 도구 선택 (Day 3: Function Calling) - 항상 Flash 사용으로 RPM 절약"""
     tools_list = TOOLS if snowflake_available else [t for t in TOOLS if t["name"] != "search_knowledge"]
     tools_desc = "\n".join([f"- {t['name']}: {t['description']}" for t in tools_list])
 
@@ -333,7 +333,8 @@ JSON:"""
         messages.extend(format_history(chat_history, max_turns=2))
     messages.append({"role": "user", "content": prompt})
 
-    result = complete_llm(messages, model_name)
+    # 도구 선택은 단순 분류 작업 → Flash로 고정하여 Pro RPM 절약
+    result = complete_llm(messages, "gemini-2.5-flash")
 
     try:
         result = result.strip()
