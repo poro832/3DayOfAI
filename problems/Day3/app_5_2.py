@@ -256,13 +256,14 @@ def execute_tool(tool_name, param, model, system_prompt):
     """도구 실행 및 결과 반환 (Day 3: Agent 실행)"""
 
     if tool_name == "search_knowledge":
-        # Day 2: RAG 검색 + 출처 표시
         results = search_knowledge(param, top_k=2)
         context = "\n\n".join([
             f"[{r['title']}] (유사도: {r['score']:.3f})\n{r['content']}"
             for r in results
         ])
-        prompt = f"""다음 참고 자료를 바탕으로 질문에 답변하세요.
+        prompt = f"""{system_prompt}
+
+다음 참고 자료를 바탕으로 질문에 답변하세요.
 
 참고 자료:
 {context}
@@ -271,13 +272,14 @@ def execute_tool(tool_name, param, model, system_prompt):
 
 참고 자료 기반으로 답변:"""
         answer = complete_llm(session, model, prompt)
-        sources = " | ".join([f"{r['title']}({r['score']:.2f})" for r in results])
-        return answer, "🔍 지식 검색 (RAG)", sources
+        sources = [f"{r['title']} (유사도: {r['score']:.2f})" for r in results]
+        return answer, "search_knowledge", sources
 
     elif tool_name == "analyze_data":
-        # Day 3: 데이터 분석
         df = get_product_data()
-        prompt = f"""다음 전자제품 데이터를 분석하여 질문에 답하세요.
+        prompt = f"""{system_prompt}
+
+다음 전자제품 데이터를 분석하여 질문에 답하세요.
 
 {df.to_string()}
 
@@ -285,184 +287,187 @@ def execute_tool(tool_name, param, model, system_prompt):
 
 데이터 기반으로 정확하게 답변:"""
         answer = complete_llm(session, model, prompt)
-        return answer, "📊 데이터 분석", None
+        return answer, "analyze_data", None
 
     elif tool_name == "calculator":
-        # Day 3: 계산기 도구
         try:
             allowed = set("0123456789+-*/.() ")
             expr = param.replace("^", "**").replace("x", "*").replace("×", "*").replace("÷", "/")
             if all(c in allowed for c in expr):
                 result = eval(expr)
-                return f"계산 결과: **{param} = {result:,}**", "🔢 계산기", None
+                return f"**{param} = {result:,}**", "calculator", None
             else:
-                return f"계산할 수 없는 표현식: {param}", "🔢 계산기", None
+                return f"계산할 수 없는 표현식입니다: {param}", "calculator", None
         except Exception as e:
-            return f"계산 오류: {e}", "🔢 계산기", None
+            return f"계산 오류: {e}", "calculator", None
 
     elif tool_name == "get_time":
-        # Day 3: 시간 조회 도구
         now = datetime.now()
         weekdays = {
             "Monday": "월요일", "Tuesday": "화요일", "Wednesday": "수요일",
             "Thursday": "목요일", "Friday": "금요일", "Saturday": "토요일", "Sunday": "일요일"
         }
         day_kr = weekdays.get(now.strftime("%A"), now.strftime("%A"))
-        return f"현재: **{now.strftime('%Y년 %m월 %d일 %H시 %M분')}** ({day_kr})", "🕐 현재 시간", None
+        return f"현재 시간은 **{now.strftime('%Y년 %m월 %d일 %H시 %M분')}** ({day_kr}) 입니다.", "get_time", None
 
     else:
-        # Day 1: 일반 대화
         prompt = f"""{system_prompt}
 
 사용자: {param}
 
 답변:"""
         answer = complete_llm(session, model, prompt)
-        return answer, "💬 일반 대화", None
+        return answer, "general_chat", None
 
 
 # ==============================================
-# Streamlit UI (Day 1: 전체 UI 구성)
+# UI: ChatGPT / Gemini 스타일 채팅 인터페이스
 # ==============================================
 
-st.title("🤖 AI 만능 어시스턴트")
-st.caption("Day 1~3의 모든 기술을 통합한 올인원 AI")
+TOOL_ICONS = {
+    "general_chat": "💬",
+    "search_knowledge": "🔍",
+    "analyze_data": "📊",
+    "calculator": "🔢",
+    "get_time": "🕐",
+}
 
-# --- 사이드바 (Day 1: 위젯 + 사이드바) ---
+TOOL_LABELS = {
+    "general_chat": "일반 대화",
+    "search_knowledge": "지식 검색",
+    "analyze_data": "데이터 분석",
+    "calculator": "계산기",
+    "get_time": "시간 조회",
+}
+
+# 페이지 설정
+st.set_page_config(page_title="AI 어시스턴트", page_icon="🤖", layout="centered")
+
+# --- 사이드바 ---
 with st.sidebar:
-    st.header("⚙️ 설정")
+    st.markdown("### 설정")
 
-    model = st.selectbox("LLM 모델", ["llama3.1-70b", "mistral-7b", "llama3.1-8b"])
+    model = st.selectbox("모델", ["llama3.1-70b", "mistral-7b", "llama3.1-8b"], label_visibility="collapsed")
 
     system_prompt = st.text_area(
         "시스템 프롬프트",
         value="당신은 친절하고 도움이 되는 AI 어시스턴트입니다. 한국어로 간결하게 답변합니다.",
-        height=80
+        height=80,
+        label_visibility="collapsed"
     )
 
     st.divider()
 
-    st.write("**🛠️ 사용 가능한 도구**")
-    for tool in TOOLS:
-        icon = {"general_chat": "💬", "search_knowledge": "🔍", "analyze_data": "📊",
-                "calculator": "🔢", "get_time": "🕐"}.get(tool["name"], "🔧")
-        st.write(f"- {icon} {tool['description'][:20]}...")
-
-    with st.expander("📋 제품 데이터 미리보기"):
-        st.dataframe(get_product_data(), use_container_width=True, height=200)
-
-    st.divider()
-
-    if st.button("🗑️ 대화 초기화", use_container_width=True):
-        st.session_state.final_messages = []
+    if st.button("새 대화", use_container_width=True, type="primary"):
+        st.session_state.messages = []
         st.rerun()
 
     st.divider()
-    st.markdown("""
-    **활용 기술:**
-    - `Day 1` UI, 스트리밍, 캐싱, 세션
-    - `Day 2` RAG, 임베딩, 유사도
-    - `Day 3` Agent, Function Calling
-    """)
 
-# --- 과정 소개 ---
-with st.expander("💡 AI 만능 어시스턴트란?", expanded=False):
-    st.markdown("""
-    ### 3일간 배운 기술의 총집합!
+    st.markdown("**도구**")
+    for tool in TOOLS:
+        icon = TOOL_ICONS.get(tool["name"], "🔧")
+        label = TOOL_LABELS.get(tool["name"], tool["name"])
+        st.caption(f"{icon} {label}")
 
-    이 앱은 **Day 1~3에서 학습한 모든 기술**을 하나로 통합한 AI 어시스턴트입니다.
-
-    | 기술 | 출처 | 적용 |
-    |------|------|------|
-    | 채팅 UI + 세션 상태 | Day 1 | 대화 인터페이스 |
-    | 스트리밍 출력 | Day 1 | 글자별 응답 표시 |
-    | 시스템 프롬프트 | Day 1 | 사이드바에서 설정 |
-    | 벡터 임베딩 + 유사도 | Day 2 | 지식 검색 (RAG) |
-    | 출처 표시 | Day 2 | 검색 결과 출처 |
-    | LLM 도구 선택 | Day 3 | Agent가 도구 자동 선택 |
-    | 사고 과정 시각화 | Day 3 | Agent 판단 과정 표시 |
-    """)
-
-# --- 예시 질문 ---
-st.write("### 💡 이런 질문을 해보세요")
-examples = [
-    ("RAG가 뭐야?", "🔍"),
-    ("가장 비싼 제품은?", "📊"),
-    ("1234 * 5678", "🔢"),
-    ("지금 몇 시야?", "🕐"),
-    ("안녕하세요!", "💬"),
-    ("캐싱이 뭐야?", "🔍"),
-]
-
-example_cols = st.columns(3)
-for i, (ex, icon) in enumerate(examples):
-    with example_cols[i % 3]:
-        if st.button(f"{icon} {ex}", key=f"final_ex_{i}", use_container_width=True):
-            st.session_state.final_pending = ex
-            st.rerun()
-
-st.divider()
+    with st.expander("제품 데이터"):
+        st.dataframe(get_product_data(), use_container_width=True, height=200)
 
 
-# --- 세션 상태 초기화 (Day 1: 세션 상태) ---
-if "final_messages" not in st.session_state:
-    st.session_state.final_messages = []
+# --- 세션 상태 초기화 ---
+if "messages" not in st.session_state:
+    st.session_state.messages = []
 
 
-# --- 채팅 히스토리 표시 (Day 1: 채팅 UI) ---
-for msg in st.session_state.final_messages:
-    with st.chat_message(msg["role"]):
-        st.markdown(msg["content"])
-        if msg.get("tool_label"):
-            st.caption(f"🛠️ {msg['tool_label']}")
-        if msg.get("sources"):
-            st.caption(f"📚 출처: {msg['sources']}")
+# --- 메인 영역 ---
+# 대화가 없을 때: 웰컴 화면 (Gemini 스타일)
+if not st.session_state.messages:
+    st.markdown("")
+    st.markdown("")
+    st.markdown("<h1 style='text-align: center; color: #666;'>무엇을 도와드릴까요?</h1>", unsafe_allow_html=True)
+    st.markdown("")
+
+    # 추천 질문 칩 (2x2 그리드)
+    suggestions = [
+        ("🔍 RAG가 뭐야?", "RAG가 뭐야?"),
+        ("📊 가장 비싼 제품 TOP 3", "가장 비싼 제품 TOP 3 알려줘"),
+        ("🔢 1234 * 5678 계산", "1234 * 5678"),
+        ("💬 Streamlit 장점 알려줘", "Streamlit의 장점을 알려줘"),
+    ]
+
+    cols = st.columns(2)
+    for i, (label, query) in enumerate(suggestions):
+        with cols[i % 2]:
+            if st.button(label, key=f"sug_{i}", use_container_width=True):
+                st.session_state.pending_input = query
+                st.rerun()
+
+else:
+    # 대화가 있을 때: 채팅 히스토리 표시
+    for msg in st.session_state.messages:
+        with st.chat_message(msg["role"]):
+            st.markdown(msg["content"])
+
+            # 도구 배지 (작은 텍스트로 표시)
+            if msg["role"] == "assistant" and msg.get("tool_name"):
+                tool_name = msg["tool_name"]
+                icon = TOOL_ICONS.get(tool_name, "🔧")
+                label = TOOL_LABELS.get(tool_name, tool_name)
+                st.caption(f"{icon} {label} 사용")
+
+            # 출처 (접을 수 있는 expander)
+            if msg.get("sources"):
+                with st.expander("📚 출처 보기"):
+                    for src in msg["sources"]:
+                        st.markdown(f"- {src}")
 
 
-# --- 채팅 입력 (Day 1: chat_input) ---
-pending = st.session_state.pop("final_pending", None)
-user_input = st.chat_input("무엇이든 물어보세요! (지식 검색, 데이터 분석, 계산 등)")
+# --- 채팅 입력 ---
+pending = st.session_state.pop("pending_input", None)
+user_input = st.chat_input("메시지를 입력하세요")
 
 if pending and not user_input:
     user_input = pending
 
 if user_input:
-    # 사용자 메시지
-    st.session_state.final_messages.append({"role": "user", "content": user_input})
+    # 사용자 메시지 저장 + 표시
+    st.session_state.messages.append({"role": "user", "content": user_input})
     with st.chat_message("user"):
         st.markdown(user_input)
 
-    # --- Agent 처리 (Day 3) ---
+    # AI 응답
     with st.chat_message("assistant"):
-        # 1. 도구 선택 (Day 3: Function Calling)
-        with st.spinner("🤔 어떤 도구를 쓸지 결정 중..."):
+        # 1. 도구 선택
+        with st.spinner("생각하는 중..."):
             tool_choice = select_tool(user_input, model)
 
         tool_name = tool_choice.get("tool", "general_chat")
         tool_param = tool_choice.get("param", user_input)
 
-        # 2. 사고 과정 시각화 (Day 3: Agent 사고과정)
-        with st.expander("🧠 Agent 사고 과정", expanded=False):
-            st.write(f"**선택된 도구**: `{tool_name}`")
-            st.write(f"**파라미터**: {tool_param}")
-            st.json(tool_choice)
-
-        # 3. 도구 실행
-        with st.spinner("⚙️ 도구 실행 중..."):
-            answer, tool_label, sources = execute_tool(
+        # 2. 도구 실행
+        with st.spinner(""):
+            answer, used_tool, sources = execute_tool(
                 tool_name, tool_param, model, system_prompt
             )
 
-        # 4. 스트리밍 출력 (Day 1: 스트리밍)
+        # 3. 스트리밍 출력
         st.write_stream(stream_text(answer))
-        st.caption(f"🛠️ {tool_label}")
-        if sources:
-            st.caption(f"📚 출처: {sources}")
 
-        # 5. 메시지 저장 (Day 1: 세션 상태)
-        st.session_state.final_messages.append({
+        # 4. 도구 배지
+        icon = TOOL_ICONS.get(used_tool, "🔧")
+        label = TOOL_LABELS.get(used_tool, used_tool)
+        st.caption(f"{icon} {label} 사용")
+
+        # 5. 출처 표시
+        if sources:
+            with st.expander("📚 출처 보기"):
+                for src in sources:
+                    st.markdown(f"- {src}")
+
+        # 6. 메시지 저장
+        st.session_state.messages.append({
             "role": "assistant",
             "content": answer,
-            "tool_label": tool_label,
+            "tool_name": used_tool,
             "sources": sources
         })
