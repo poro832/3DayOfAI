@@ -290,6 +290,10 @@ TOOLS = [
     {
         "name": "get_time",
         "description": "현재 날짜와 시간 조회."
+    },
+    {
+        "name": "web_search",
+        "description": "웹 검색으로 최신 정보 조회. 최신 뉴스, 실시간 정보, 인물/기업 정보, 기술 트렌드, 스포츠 결과 등."
     }
 ]
 
@@ -394,6 +398,35 @@ def execute_tool(tool_name, param, model_name, system_prompt, chat_history):
         day_kr = weekdays.get(now.strftime("%A"), now.strftime("%A"))
         return f"현재 시간은 **{now.strftime('%Y년 %m월 %d일 %H시 %M분')}** ({day_kr}) 입니다.", "get_time", None
 
+    elif tool_name == "web_search":
+        search_tool = types.Tool(google_search=types.GoogleSearch())
+        config = types.GenerateContentConfig(
+            tools=[search_tool],
+            system_instruction=system_prompt
+        )
+        response = None
+        for attempt in range(3):
+            try:
+                response = client.models.generate_content(
+                    model=model_name, contents=param, config=config
+                )
+                break
+            except Exception as e:
+                if ("429" in str(e) or "RESOURCE_EXHAUSTED" in str(e)) and attempt < 2:
+                    time.sleep(10)
+                    continue
+                raise
+        text = response.text or "검색 결과를 가져올 수 없습니다."
+        sources = []
+        if response.candidates:
+            metadata = response.candidates[0].grounding_metadata
+            if metadata and metadata.grounding_chunks:
+                for chunk in metadata.grounding_chunks:
+                    if chunk.web and chunk.web.uri:
+                        title = chunk.web.title or chunk.web.uri
+                        sources.append(f"[{title}]({chunk.web.uri})")
+        return text, "web_search", sources if sources else None
+
     else:
         messages = format_history(chat_history)
         messages.append({"role": "user", "content": param})
@@ -410,6 +443,7 @@ TOOL_ICONS = {
     "analyze_data": "📊",
     "calculator": "🔢",
     "get_time": "🕐",
+    "web_search": "🌐",
 }
 
 TOOL_LABELS = {
@@ -418,6 +452,7 @@ TOOL_LABELS = {
     "analyze_data": "데이터 분석",
     "calculator": "계산기",
     "get_time": "시간 조회",
+    "web_search": "웹 검색",
 }
 
 # 페이지 설정
@@ -482,7 +517,7 @@ if not st.session_state.messages:
         ("🔍 RAG가 뭐야?", "RAG가 뭐야?"),
         ("📊 가장 비싼 제품 TOP 3", "가장 비싼 제품 TOP 3 알려줘"),
         ("🔢 1234 * 5678 계산", "1234 * 5678"),
-        ("💬 Streamlit 장점 알려줘", "Streamlit의 장점을 알려줘"),
+        ("🌐 오늘 주요 뉴스", "오늘 주요 뉴스 알려줘"),
     ]
 
     cols = st.columns(2)
