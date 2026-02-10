@@ -2,14 +2,21 @@
 Day 3 - Step 5-2: 최종 프로젝트 - AI 만능 어시스턴트 (정답)
 
 3일간 학습한 모든 기술을 통합한 올인원 AI 어시스턴트입니다.
+Google Gemini API로 고품질 응답 + 실시간 스트리밍을 제공합니다.
 
 [활용 기술]
-- Day 1: Streamlit UI, LLM 호출, 스트리밍, 캐싱, 세션 상태, 채팅 UI, 시스템 프롬프트
+- Day 1: Streamlit UI, 스트리밍, 캐싱, 세션 상태, 채팅 UI, 시스템 프롬프트
 - Day 2: RAG (임베딩, 코사인 유사도, 출처 표시)
-- Day 3: Agent (LLM 기반 도구 선택, 멀티턴, 사고과정 시각화)
+- Day 3: Agent (LLM 기반 도구 선택, 도구 배지 표시)
+
+[필요 설정] .streamlit/secrets.toml
+[api_keys]
+google = "AIza..."
 """
 
 import streamlit as st
+from google import genai
+from google.genai import types
 import json
 import time
 import numpy as np
@@ -19,49 +26,118 @@ from snowflake.snowpark import Session
 
 
 # ==============================================
-# Day 1: Snowflake 연결 + LLM 호출 + 스트리밍
+# Gemini API
 # ==============================================
 
+GEMINI_MODELS = {
+    "Gemini 2.5 Flash": "gemini-2.5-flash",
+    "Gemini 2.5 Pro": "gemini-2.5-pro",
+}
+
+
 @st.cache_resource
-def get_snowflake_session():
-    connection_parameters = st.secrets["connections"]["snowflake"]
-    return Session.builder.configs(connection_parameters).create()
+def get_genai_client():
+    return genai.Client(api_key=st.secrets["api_keys"]["google"])
 
 
-def complete_llm(session, model, prompt):
-    escaped_prompt = prompt.replace("'", "''")
-    sql = f"SELECT SNOWFLAKE.CORTEX.COMPLETE('{model}', '{escaped_prompt}')"
-    result = session.sql(sql).collect()
-    return result[0][0]
+def to_gemini_history(messages):
+    """내부 메시지 형식 → Gemini 형식으로 변환"""
+    history = []
+    for msg in messages:
+        role = "model" if msg["role"] == "assistant" else "user"
+        entry = types.Content(role=role, parts=[types.Part(text=msg["content"])])
+        if history and history[-1].role == role:
+            history[-1].parts[0].text += "\n" + msg["content"]
+        else:
+            history.append(entry)
+    # Gemini 히스토리는 user로 시작해야 함
+    while history and history[0].role == "model":
+        history.pop(0)
+    return history
 
 
-def get_embedding(session, text):
-    """Day 2: 벡터 임베딩 생성"""
-    safe_text = text.replace("'", "''").replace("\\", "\\\\")[:2000]
-    sql = f"SELECT SNOWFLAKE.CORTEX.EMBED_TEXT_768('snowflake-arctic-embed-m', '{safe_text}')"
-    result = session.sql(sql).collect()
-    raw = result[0][0]
-    if isinstance(raw, str):
-        return json.loads(raw)
-    return list(raw)
+def complete_llm(messages, model_name):
+    """비스트리밍 LLM 호출 (도구 선택용) - 429 에러 시 자동 재시도"""
+    for attempt in range(3):
+        try:
+            if len(messages) == 1:
+                response = client.models.generate_content(
+                    model=model_name, contents=messages[0]["content"]
+                )
+            else:
+                gemini_history = to_gemini_history(messages[:-1])
+                chat = client.chats.create(model=model_name, history=gemini_history)
+                response = chat.send_message(messages[-1]["content"])
+            return response.text
+        except Exception as e:
+            if ("429" in str(e) or "RESOURCE_EXHAUSTED" in str(e)) and attempt < 2:
+                time.sleep(10)
+                continue
+            raise
+
+
+def stream_response(messages, system_prompt, model_name):
+    """실시간 스트리밍 LLM 호출 (응답 생성용) - 429 에러 시 자동 재시도"""
+    config = types.GenerateContentConfig(system_instruction=system_prompt)
+
+    for attempt in range(3):
+        try:
+            if len(messages) == 1:
+                response = client.models.generate_content_stream(
+                    model=model_name, contents=messages[0]["content"], config=config
+                )
+            else:
+                gemini_history = to_gemini_history(messages[:-1])
+                chat = client.chats.create(model=model_name, history=gemini_history, config=config)
+                response = chat.send_message_stream(messages[-1]["content"])
+
+            for chunk in response:
+                if chunk.text:
+                    yield chunk.text
+            return
+        except Exception as e:
+            if ("429" in str(e) or "RESOURCE_EXHAUSTED" in str(e)) and attempt < 2:
+                time.sleep(10)
+                continue
+            raise
 
 
 def stream_text(text):
-    """Day 1: 스트리밍 출력"""
+    """간단한 텍스트 스트리밍 (비LLM 결과용)"""
     for char in text:
         yield char
         time.sleep(0.015)
 
 
+# ==============================================
+# Snowflake 연결 (RAG 임베딩 전용)
+# ==============================================
+
+@st.cache_resource
+def get_snowflake_session():
+    return Session.builder.configs(st.secrets["connections"]["snowflake"]).create()
+
+
+def get_embedding(session, text):
+    """벡터 임베딩 생성 (Snowflake EMBED_TEXT_768)"""
+    safe_text = text.replace("'", "''").replace("\\", "\\\\")[:2000]
+    sql = f"SELECT SNOWFLAKE.CORTEX.EMBED_TEXT_768('snowflake-arctic-embed-m', '{safe_text}')"
+    result = session.sql(sql).collect()
+    raw = result[0][0]
+    return json.loads(raw) if isinstance(raw, str) else list(raw)
+
+
+# Snowflake 연결 시도 (실패해도 RAG 외 기능은 동작)
 try:
     session = get_snowflake_session()
-except Exception as e:
-    st.error(f"Snowflake 연결 실패: {e}")
-    st.stop()
+    snowflake_available = True
+except Exception:
+    snowflake_available = False
+    session = None
 
 
 # ==============================================
-# Day 2: RAG - 지식 베이스
+# RAG 지식 베이스 (Day 2)
 # ==============================================
 
 KNOWLEDGE_BASE = [
@@ -101,14 +177,14 @@ KNOWLEDGE_BASE = [
 
 
 def cosine_similarity(vec1, vec2):
-    """Day 2: 코사인 유사도"""
+    """코사인 유사도 (Day 2)"""
     vec1, vec2 = np.array(vec1), np.array(vec2)
     return float(np.dot(vec1, vec2) / (np.linalg.norm(vec1) * np.linalg.norm(vec2)))
 
 
 @st.cache_data
 def build_knowledge_embeddings(_session):
-    """지식 베이스 벡터 임베딩 (Day 2: 벡터 임베딩 + Day 1: 캐싱)"""
+    """지식 베이스 벡터 임베딩 (Day 2 + Day 1 캐싱)"""
     embeddings = []
     for doc in KNOWLEDGE_BASE:
         emb = get_embedding(_session, doc["content"])
@@ -139,7 +215,7 @@ def search_knowledge(query, top_k=2):
 
 
 # ==============================================
-# Day 3: 제품 데이터 (데이터 분석 도구용)
+# 제품 데이터 (데이터 분석 도구용)
 # ==============================================
 
 @st.cache_data
@@ -191,7 +267,7 @@ def get_product_data():
 
 
 # ==============================================
-# Day 3: Agent - 도구 정의 + LLM 기반 선택
+# Agent: 도구 정의 + 선택 + 실행 (Day 3)
 # ==============================================
 
 TOOLS = [
@@ -218,9 +294,23 @@ TOOLS = [
 ]
 
 
-def select_tool(user_message, model):
-    """LLM 기반 도구 선택 (Day 3: Function Calling)"""
-    tools_desc = "\n".join([f"- {t['name']}: {t['description']}" for t in TOOLS])
+def format_history(messages, max_turns=5):
+    """최근 대화를 메시지 형식으로 변환 (user/assistant 교대 보장)"""
+    recent = messages[-(max_turns * 2):]
+    result = []
+    for m in recent:
+        entry = {"role": m["role"], "content": m["content"]}
+        if result and result[-1]["role"] == m["role"]:
+            result[-1]["content"] += "\n" + m["content"]
+        else:
+            result.append(entry)
+    return result
+
+
+def select_tool(user_message, model_name, chat_history=None):
+    """Gemini로 도구 선택 (Day 3: Function Calling)"""
+    tools_list = TOOLS if snowflake_available else [t for t in TOOLS if t["name"] != "search_knowledge"]
+    tools_desc = "\n".join([f"- {t['name']}: {t['description']}" for t in tools_list])
 
     prompt = f"""사용자 메시지를 분석하고 가장 적합한 도구 하나를 선택하세요.
 
@@ -234,7 +324,12 @@ def select_tool(user_message, model):
 
 JSON:"""
 
-    result = complete_llm(session, model, prompt)
+    messages = []
+    if chat_history:
+        messages.extend(format_history(chat_history, max_turns=2))
+    messages.append({"role": "user", "content": prompt})
+
+    result = complete_llm(messages, model_name)
 
     try:
         result = result.strip()
@@ -252,8 +347,8 @@ JSON:"""
     return {"tool": "general_chat", "param": user_message}
 
 
-def execute_tool(tool_name, param, model, system_prompt):
-    """도구 실행 및 결과 반환 (Day 3: Agent 실행)"""
+def execute_tool(tool_name, param, model_name, system_prompt, chat_history):
+    """도구 실행 - LLM 응답은 스트리밍 generator, 비LLM은 문자열 반환"""
 
     if tool_name == "search_knowledge":
         results = search_knowledge(param, top_k=2)
@@ -261,33 +356,22 @@ def execute_tool(tool_name, param, model, system_prompt):
             f"[{r['title']}] (유사도: {r['score']:.3f})\n{r['content']}"
             for r in results
         ])
-        prompt = f"""{system_prompt}
-
-다음 참고 자료를 바탕으로 질문에 답변하세요.
-
-참고 자료:
-{context}
-
-질문: {param}
-
-참고 자료 기반으로 답변:"""
-        answer = complete_llm(session, model, prompt)
+        messages = format_history(chat_history)
+        messages.append({
+            "role": "user",
+            "content": f"다음 참고 자료를 바탕으로 질문에 답변하세요.\n\n참고 자료:\n{context}\n\n질문: {param}"
+        })
         sources = [f"{r['title']} (유사도: {r['score']:.2f})" for r in results]
-        return answer, "search_knowledge", sources
+        return stream_response(messages, system_prompt, model_name), "search_knowledge", sources
 
     elif tool_name == "analyze_data":
         df = get_product_data()
-        prompt = f"""{system_prompt}
-
-다음 전자제품 데이터를 분석하여 질문에 답하세요.
-
-{df.to_string()}
-
-질문: {param}
-
-데이터 기반으로 정확하게 답변:"""
-        answer = complete_llm(session, model, prompt)
-        return answer, "analyze_data", None
+        messages = format_history(chat_history)
+        messages.append({
+            "role": "user",
+            "content": f"다음 전자제품 데이터를 분석하여 질문에 답하세요.\n\n{df.to_string()}\n\n질문: {param}"
+        })
+        return stream_response(messages, system_prompt, model_name), "analyze_data", None
 
     elif tool_name == "calculator":
         try:
@@ -311,13 +395,9 @@ def execute_tool(tool_name, param, model, system_prompt):
         return f"현재 시간은 **{now.strftime('%Y년 %m월 %d일 %H시 %M분')}** ({day_kr}) 입니다.", "get_time", None
 
     else:
-        prompt = f"""{system_prompt}
-
-사용자: {param}
-
-답변:"""
-        answer = complete_llm(session, model, prompt)
-        return answer, "general_chat", None
+        messages = format_history(chat_history)
+        messages.append({"role": "user", "content": param})
+        return stream_response(messages, system_prompt, model_name), "general_chat", None
 
 
 # ==============================================
@@ -343,11 +423,19 @@ TOOL_LABELS = {
 # 페이지 설정
 st.set_page_config(page_title="AI 어시스턴트", page_icon="🤖", layout="centered")
 
+# Gemini API 클라이언트 생성
+try:
+    client = get_genai_client()
+except Exception:
+    st.error("⚠️ Gemini API 키를 설정하세요\n\n`.streamlit/secrets.toml`에 추가:\n```\n[api_keys]\ngoogle = \"AIza...\"\n```\n\n[Google AI Studio](https://aistudio.google.com/apikey)에서 무료 발급")
+    st.stop()
+
 # --- 사이드바 ---
 with st.sidebar:
     st.markdown("### 설정")
 
-    model = st.selectbox("모델", ["llama3.1-70b", "mistral-7b", "llama3.1-8b"], label_visibility="collapsed")
+    model_name_display = st.selectbox("모델", list(GEMINI_MODELS.keys()), label_visibility="collapsed")
+    model_name = GEMINI_MODELS[model_name_display]
 
     system_prompt = st.text_area(
         "시스템 프롬프트",
@@ -368,7 +456,10 @@ with st.sidebar:
     for tool in TOOLS:
         icon = TOOL_ICONS.get(tool["name"], "🔧")
         label = TOOL_LABELS.get(tool["name"], tool["name"])
-        st.caption(f"{icon} {label}")
+        if tool["name"] == "search_knowledge" and not snowflake_available:
+            st.caption(f"~~{icon} {label}~~ (Snowflake 필요)")
+        else:
+            st.caption(f"{icon} {label}")
 
     with st.expander("제품 데이터"):
         st.dataframe(get_product_data(), use_container_width=True, height=200)
@@ -380,7 +471,6 @@ if "messages" not in st.session_state:
 
 
 # --- 메인 영역 ---
-# 대화가 없을 때: 웰컴 화면 (Gemini 스타일)
 if not st.session_state.messages:
     st.markdown("")
     st.markdown("")
@@ -408,14 +498,10 @@ else:
         with st.chat_message(msg["role"]):
             st.markdown(msg["content"])
 
-            # 도구 배지 (작은 텍스트로 표시)
             if msg["role"] == "assistant" and msg.get("tool_name"):
-                tool_name = msg["tool_name"]
-                icon = TOOL_ICONS.get(tool_name, "🔧")
-                label = TOOL_LABELS.get(tool_name, tool_name)
-                st.caption(f"{icon} {label} 사용")
+                tn = msg["tool_name"]
+                st.caption(f"{TOOL_ICONS.get(tn, '🔧')} {TOOL_LABELS.get(tn, tn)} 사용")
 
-            # 출처 (접을 수 있는 expander)
             if msg.get("sources"):
                 with st.expander("📚 출처 보기"):
                     for src in msg["sources"]:
@@ -437,37 +523,52 @@ if user_input:
 
     # AI 응답
     with st.chat_message("assistant"):
-        # 1. 도구 선택
-        with st.spinner("생각하는 중..."):
-            tool_choice = select_tool(user_input, model)
+        try:
+            # 1. 도구 선택 (대화 맥락 포함)
+            with st.spinner("생각하는 중..."):
+                history = st.session_state.messages[:-1]
+                tool_choice = select_tool(user_input, model_name, history)
 
-        tool_name = tool_choice.get("tool", "general_chat")
-        tool_param = tool_choice.get("param", user_input)
+            tool_name = tool_choice.get("tool", "general_chat")
+            tool_param = tool_choice.get("param", user_input)
 
-        # 2. 도구 실행
-        with st.spinner(""):
-            answer, used_tool, sources = execute_tool(
-                tool_name, tool_param, model, system_prompt
+            # 2. 도구 실행
+            result, used_tool, sources = execute_tool(
+                tool_name, tool_param, model_name, system_prompt, history
             )
 
-        # 3. 스트리밍 출력
-        st.write_stream(stream_text(answer))
+            # 3. 스트리밍 출력 (LLM: 실시간, 비LLM: 텍스트)
+            if isinstance(result, str):
+                st.write_stream(stream_text(result))
+                full_text = result
+            else:
+                full_text = st.write_stream(result)
 
-        # 4. 도구 배지
-        icon = TOOL_ICONS.get(used_tool, "🔧")
-        label = TOOL_LABELS.get(used_tool, used_tool)
-        st.caption(f"{icon} {label} 사용")
+            # 4. 도구 배지
+            icon = TOOL_ICONS.get(used_tool, "🔧")
+            label = TOOL_LABELS.get(used_tool, used_tool)
+            st.caption(f"{icon} {label} 사용")
 
-        # 5. 출처 표시
-        if sources:
-            with st.expander("📚 출처 보기"):
-                for src in sources:
-                    st.markdown(f"- {src}")
+            # 5. 출처 표시
+            if sources:
+                with st.expander("📚 출처 보기"):
+                    for src in sources:
+                        st.markdown(f"- {src}")
+
+        except Exception as e:
+            if "429" in str(e) or "RESOURCE_EXHAUSTED" in str(e):
+                full_text = "API 요청 한도를 초과했습니다. 잠시 후 다시 시도해주세요."
+                st.warning(full_text)
+            else:
+                full_text = f"오류가 발생했습니다: {e}"
+                st.error(full_text)
+            used_tool = "general_chat"
+            sources = None
 
         # 6. 메시지 저장
         st.session_state.messages.append({
             "role": "assistant",
-            "content": answer,
+            "content": full_text,
             "tool_name": used_tool,
             "sources": sources
         })
