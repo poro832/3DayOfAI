@@ -51,12 +51,12 @@ tools = [{
     }
 }]
 
-# TODO 1: 날씨 함수 구현 - weather_data를 완성하세요
 def get_weather(city):
     """도시별 날씨 반환 (시뮬레이션)"""
     weather_data = {
-        # TODO: 5개 도시의 날씨 데이터를 추가하세요 (4줄)
-        # 힌트: "서울": {"temp": 15, "condition": "맑음"}, ...
+        "서울": {"temp": 15, "condition": "맑음"},
+        # TODO: 나머지 4개 도시 추가 (4줄)
+        # 힌트: "부산", "제주", "대구", "인천"
     }
     return weather_data.get(city, {"temp": 16, "condition": "정보 없음"})
 
@@ -64,8 +64,7 @@ user_input = st.text_input("질문", "서울 날씨 어때?")
 
 if user_input and st.button("실행"):
     with st.spinner("Agent 실행 중..."):
-        # TODO 2: 입력에서 도시명 추출하기 (3줄)
-        # 힌트: 도시 리스트를 만들고 for 루프로 user_input에 포함된 도시 찾기
+        # 입력에서 도시명 추출
         cities = ["서울", "부산", "제주", "대구", "인천"]
         found_city = None
         for city in cities:
@@ -79,5 +78,5 @@ if user_input and st.button("실행"):
             st.write(f"🌡️ 온도: {weather['temp']}°C")
             st.write(f"☁️ 상태: {weather['condition']}")
         else:
-            # TODO 3: LLM에게 직접 질문 (2줄)
-            pass  # TODO를 완성하세요
+            response = complete_llm(session, "llama3.1-70b", user_input)
+            st.write(response)

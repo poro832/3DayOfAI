@@ -52,8 +52,10 @@ topic = st.text_input("주제를 입력하세요", placeholder="예: 월요일 �
 
 if topic and st.button("✨ 생성하기"):
     prompt = f"""다음 조건에 맞는 {content_type}를 작성해주세요.
+
 톤/스타일: {tone}
 주제: {topic}
+
 한국어로 작성하고, 해당 콘텐츠 유형에 맞는 형식으로 작성해주세요."""
 
     st.write("### 생성 결과")

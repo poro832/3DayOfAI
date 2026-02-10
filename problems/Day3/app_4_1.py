@@ -51,13 +51,11 @@ st.dataframe(df)
 # 분석 함수 구현
 def get_stats():
     """데이터 기본 통계"""
-    # TODO: 4가지 통계를 딕셔너리로 반환 (4줄)
-    # 힌트: 총 제품 수(len), 평균 가격(mean), 총 판매량(sum), 평균 평점(mean)
     return {
         "총 제품 수": len(df),
         "평균 가격": f"{df['가격'].mean():,.0f}원",
-        "총 판매량": "",  # TODO: df['판매량'].sum() 활용
-        "평균 평점": ""   # TODO: df['평점'].mean() 활용
+        "총 판매량": f"{df['판매량'].sum():,}개",
+        "평균 평점": f"{df['평점'].mean():.1f}점"
     }
 
 def get_top_products(by="판매량", n=3):
@@ -68,9 +66,7 @@ def get_top_products(by="판매량", n=3):
 
 def filter_by_category(category):
     """카테고리별 필터링"""
-    # TODO: 카테고리 필터링 (1줄)
-    # 힌트: df[df["카테고리"] == category].to_dict("records")
-    return []  # TODO를 완성하세요
+    return df[df["카테고리"] == category].to_dict("records")
 
 st.write("### 질문 예시")
 st.write("- 전체 통계 보여줘")
@@ -95,9 +91,10 @@ if user_input and st.button("분석"):
                 st.write(f"{i}. **{item['제품']}** - {item['판매량']:,}개")
 
         elif any(word in user_input for word in ["평점", "높은", "좋은"]):
-            # TODO: 평점 TOP 3 표시 (3줄)
-            # 힌트: get_top_products(by="평점", n=3) 호출 후 결과 표시
-            st.info("TODO를 완성하세요")
+            top = get_top_products(by="평점", n=3)
+            st.write("### ⭐ 평점 TOP 3")
+            for i, item in enumerate(top, 1):
+                st.write(f"{i}. **{item['제품']}** - {item['평점']}점")
 
         elif "전자기기" in user_input or "액세서리" in user_input:
             category = "전자기기" if "전자기기" in user_input else "액세서리"

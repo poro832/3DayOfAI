@@ -66,7 +66,7 @@ with st.expander("💡 LangChain 패턴이란?", expanded=True):
     """)
 
 
-# TODO 1: PromptTemplate 클래스 구현
+# LangChain 스타일 컴포넌트들
 class PromptTemplate:
     """프롬프트 템플릿"""
     def __init__(self, template: str, input_variables: list):
@@ -74,21 +74,16 @@ class PromptTemplate:
         self.input_variables = input_variables
 
     def format(self, **kwargs):
-        # TODO: 템플릿의 {변수명}을 실제 값으로 교체 (3줄)
-        # 힌트: for var in self.input_variables 순회하며 replace()
         result = self.template
         for var in self.input_variables:
             result = result.replace(f"{{{var}}}", str(kwargs.get(var, "")))
         return result
 
 
-# TODO 2: OutputParser 클래스 구현
 class OutputParser:
     """출력 파서"""
     @staticmethod
     def parse_json(text):
-        # TODO: 텍스트에서 JSON 추출 (4줄)
-        # 힌트: find('{'), rfind('}')로 JSON 영역 찾고 json.loads()
         try:
             json_start = text.find('{')
             json_end = text.rfind('}') + 1
@@ -100,13 +95,10 @@ class OutputParser:
 
     @staticmethod
     def parse_list(text):
-        # TODO: 텍스트를 줄 단위 리스트로 변환 (2줄)
-        # 힌트: split('\n')으로 나누고 strip('- ')
         lines = text.strip().split('\n')
         return [line.strip('- ').strip() for line in lines if line.strip()]
 
 
-# TODO 3: LLMChain 클래스 구현
 class LLMChain:
     """LLM 체인"""
     def __init__(self, llm_session, model, prompt_template, output_parser=None):
@@ -116,20 +108,16 @@ class LLMChain:
         self.output_parser = output_parser
 
     def run(self, **kwargs):
-        # TODO: 프롬프트 생성 → LLM 호출 → 파싱 (3줄)
         prompt = self.prompt_template.format(**kwargs)
         response = complete_llm(self.session, self.model, prompt)
-        # TODO: output_parser에 따라 파싱 (2줄)
-        # 힌트: "json"이면 OutputParser.parse_json(response), "list"면 parse_list
         if self.output_parser:
             if self.output_parser == "json":
-                pass  # TODO: OutputParser.parse_json(response) 반환
+                return OutputParser.parse_json(response)
             elif self.output_parser == "list":
-                pass  # TODO: OutputParser.parse_list(response) 반환
+                return OutputParser.parse_list(response)
         return response
 
 
-# TODO 4: Tool 클래스 구현
 class Tool:
     """도구"""
     def __init__(self, name, description, func):
@@ -138,11 +126,9 @@ class Tool:
         self.func = func
 
     def run(self, *args, **kwargs):
-        # TODO: self.func 호출 (1줄)
         return self.func(*args, **kwargs)
 
 
-# TODO 5: Agent 클래스 구현
 class Agent:
     """Agent (도구 선택 + 실행)"""
     def __init__(self, llm_session, model, tools):
@@ -165,12 +151,11 @@ JSON: {{"tool": "도구명", "input": "입력값"}} 또는 {{"tool": null, "answ
         response = complete_llm(self.session, self.model, decide_prompt)
         decision = OutputParser.parse_json(response)
 
-        # TODO: 선택된 도구 실행 후 결과 반환 (4줄)
-        # 힌트: decision에서 "tool"이 있고 self.tools에 존재하면
-        #       tool = self.tools[도구명], result = tool.run(입력값)
+        # TODO: 선택된 도구 실행 후 결과 반환 (3줄)
+        # 힌트: tool = self.tools[도구명], result = tool.run(입력값)
         #       {"tool": 도구명, "result": 결과} 반환
         if decision.get("tool") and decision["tool"] in self.tools:
-            pass  # TODO를 완성하세요 (3줄: tool 가져오기, 실행, 반환)
+            pass  # TODO를 완성하세요
 
         return {"answer": decision.get("answer", response)}
 

@@ -19,24 +19,29 @@ def get_snowflake_session():
     return Session.builder.configs(connection_parameters).create()
 
 
-# TODO 1: 메트릭 수집 함수 완성
+# TODO: 시간 측정 완성
 def complete_llm_with_metrics(session, model, prompt):
     """LLM 호출 + 메트릭 수집"""
     escaped_prompt = prompt.replace("'", "''")
     sql = f"SELECT SNOWFLAKE.CORTEX.COMPLETE('{model}', '{escaped_prompt}')"
 
-    # TODO: 시간 측정 후 메트릭 반환 (3줄)
-    # 힌트: time.time()으로 시작/끝 시간 측정
-    start_time = time.time()  # 이미 완성됨
+    start_time = time.time()
     result = session.sql(sql).collect()
     latency = 0  # TODO: time.time() - start_time 으로 교체
+
     response = result[0][0]
+
+    # 토큰 추정 (1 토큰 ≈ 0.75 단어 / 2 글자)
+    word_count = len(response.split())
+    char_count = len(response)
+    estimated_tokens = max(word_count // 0.75, char_count // 2)
 
     return {
         "response": response,
         "latency": latency,
-        "word_count": len(response.split()),
-        "char_count": len(response)
+        "word_count": word_count,
+        "char_count": char_count,
+        "estimated_tokens": int(estimated_tokens)
     }
 
 
@@ -46,7 +51,7 @@ except Exception as e:
     st.error(f"Snowflake 연결 실패: {e}")
     st.stop()
 
-# 세션 상태 초기화 - 비교 히스토리 저장
+# 히스토리 세션 상태 초기화 (맨 위에서)
 if "comparison_history" not in st.session_state:
     st.session_state.comparison_history = []
 
@@ -110,17 +115,14 @@ if st.button("🔄 모델 비교 실행") and prompt:
 
     results = {}
 
-    # TODO 2: 두 모델 실행 및 결과 비교
+    # 두 모델 순차 실행 (병렬 실행 시 동시성 문제 가능)
     progress = st.progress(0)
 
     for i, model in enumerate([model_a, model_b]):
         with st.spinner(f"{model} 실행 중..."):
             try:
                 result = complete_llm_with_metrics(session, model, prompt)
-                if result:
-                    results[model] = result
-                else:
-                    results[model] = {"error": "TODO를 완성하세요"}
+                results[model] = result
             except Exception as e:
                 results[model] = {"error": str(e)}
 
@@ -133,19 +135,22 @@ if st.button("🔄 모델 비교 실행") and prompt:
         with col:
             st.write(f"#### {model}")
 
-            if "error" in results.get(model, {}):
+            if "error" in results[model]:
                 st.error(f"오류: {results[model]['error']}")
-            elif results.get(model):
+            else:
                 r = results[model]
 
                 # 메트릭
-                st.metric("응답 시간", f"{r.get('latency', 0):.2f}초")
-                st.metric("글자 수", f"{r.get('char_count', 0):,}")
+                metric_col1, metric_col2 = st.columns(2)
+                with metric_col1:
+                    st.metric("응답 시간", f"{r['latency']:.2f}초")
+                with metric_col2:
+                    st.metric("글자 수", f"{r['char_count']:,}")
 
                 # 응답 내용
                 st.text_area(
                     "응답",
-                    value=r.get("response", ""),
+                    value=r["response"],
                     height=200,
                     disabled=True,
                     key=f"response_{model}"
@@ -158,6 +163,32 @@ if st.button("🔄 모델 비교 실행") and prompt:
 
         r_a = results[model_a]
         r_b = results[model_b]
+
+        # 비교 테이블
+        import pandas as pd
+        comparison = pd.DataFrame({
+            "지표": ["응답 시간 (초)", "글자 수", "단어 수", "예상 토큰"],
+            model_a: [
+                f"{r_a['latency']:.2f}",
+                r_a['char_count'],
+                r_a['word_count'],
+                r_a['estimated_tokens']
+            ],
+            model_b: [
+                f"{r_b['latency']:.2f}",
+                r_b['char_count'],
+                r_b['word_count'],
+                r_b['estimated_tokens']
+            ],
+            "승자": [
+                model_a if r_a['latency'] < r_b['latency'] else model_b,
+                model_a if r_a['char_count'] > r_b['char_count'] else model_b,
+                model_a if r_a['word_count'] > r_b['word_count'] else model_b,
+                "-"
+            ]
+        })
+
+        st.dataframe(comparison, use_container_width=True)
 
         # 속도 비교
         faster = model_a if r_a['latency'] < r_b['latency'] else model_b
@@ -190,10 +221,6 @@ if st.checkbox("📋 비교 히스토리 보기"):
         import pandas as pd
         history_df = pd.DataFrame(st.session_state.comparison_history)
         st.dataframe(history_df, use_container_width=True)
-
-        if st.button("🗑️ 히스토리 초기화"):
-            st.session_state.comparison_history = []
-            st.rerun()
     else:
         st.info("아직 비교 기록이 없습니다.")
 
@@ -212,4 +239,13 @@ with st.sidebar:
 
     **균형이 필요하면:**
     - mixtral-8x7b
+    """)
+
+    st.divider()
+
+    st.write("### 🔧 테스트 팁")
+    st.markdown("""
+    - 같은 프롬프트로 여러 번 테스트
+    - 다양한 유형의 질문 시도
+    - 응답 품질은 직접 평가
     """)

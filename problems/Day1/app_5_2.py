@@ -37,9 +37,8 @@ session = get_snowflake_session()
 
 st.title("🎯 완성형 챗봇")
 
-# TODO: 시스템 프롬프트 정의 (AI의 역할과 성격을 지정)
-# 힌트: AI의 역할, 답변 언어, 스타일 등을 문자열로 정의하세요
-DEFAULT_SYSTEM_PROMPT = "당신은 AI 어시스턴트입니다."  # TODO를 완성하세요
+# 기본 시스템 프롬프트
+DEFAULT_SYSTEM_PROMPT = "당신은 친절한 AI 어시스턴트입니다. 반드시 한국어로 짧고 간결하게 답변하세요."
 
 if "messages" not in st.session_state:
     st.session_state.messages = []
@@ -50,17 +49,22 @@ if "system_prompt" not in st.session_state:
 with st.sidebar:
     st.write("### ⚙️ 설정")
 
-    # TODO: 시스템 프롬프트 편집 영역
-    # 힌트: st.text_area()로 현재 프롬프트를 표시하고, 변경 시 session_state 업데이트
-    # new_prompt = st.text_area("시스템 프롬프트", value=???, height=100)
-
+    # 시스템 프롬프트 편집
+    new_prompt = st.text_area(
+        "시스템 프롬프트",
+        value=st.session_state.system_prompt,
+        height=100
+    )
+    if new_prompt != st.session_state.system_prompt:
+        st.session_state.system_prompt = new_prompt
 
     st.divider()
 
     st.write("### 💬 대화 관리")
 
-    # TODO: 대화 초기화 버튼
-    # 힌트: st.button()으로 버튼 생성, 클릭 시 messages를 빈 리스트로 초기화 후 st.rerun()
+    if st.button("대화 초기화"):
+        st.session_state.messages = []
+        st.rerun()
 
 
     msg_count = len(st.session_state.messages)
@@ -83,15 +87,8 @@ if user_input:
         for msg in st.session_state.messages
     ])
 
-    # TODO: 시스템 프롬프트와 대화 히스토리를 조합한 full_prompt 생성
-    # 힌트: 아래 형식으로 f-string을 완성하세요
-    # full_prompt = f"""[시스템 지시사항]
-    # {???}
-    #
-    # [대화 내용]
-    # {???}
-    #
-    # AI:"""
+    # TODO: 시스템 프롬프트 + 대화 히스토리를 조합한 full_prompt 생성 (1줄)
+    # 힌트: f"""[시스템 지시사항]\n{st.session_state.system_prompt}\n\n[대화 내용]\n{conversation_history}\n\nAI:"""
     full_prompt = conversation_history  # TODO를 완성하세요
 
     with st.chat_message("assistant"):
