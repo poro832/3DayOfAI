@@ -32,65 +32,104 @@ session = get_snowflake_session()
 
 st.title("🛠️ 다중 도구 Agent")
 
-# 도구 정의 (이미 완성됨 - 구조 확인용)
+# 여러 도구 정의
 tools = [
-    {"type": "function", "function": {"name": "get_time", "description": "현재 시간을 반환합니다", "parameters": {"type": "object", "properties": {}}}},
-    {"type": "function", "function": {"name": "calculate", "description": "수학 계산을 수행합니다", "parameters": {"type": "object", "properties": {"expression": {"type": "string"}}, "required": ["expression"]}}},
-    {"type": "function", "function": {"name": "get_weather", "description": "날씨를 조회합니다", "parameters": {"type": "object", "properties": {"city": {"type": "string"}}, "required": ["city"]}}}
+    {
+        "type": "function",
+        "function": {
+            "name": "get_time",
+            "description": "현재 시간을 반환합니다",
+            "parameters": {"type": "object", "properties": {}}
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "calculate",
+            "description": "수학 계산을 수행합니다",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "expression": {"type": "string", "description": "계산식 (예: 2+3*4)"}
+                },
+                "required": ["expression"]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "get_weather",
+            "description": "날씨를 조회합니다",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "city": {"type": "string", "description": "도시명"}
+                },
+                "required": ["city"]
+            }
+        }
+    }
 ]
 
 def get_time():
     return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
 def calculate(expression):
-    # TODO: 계산기 구현 (3줄)
-    # 힌트: 허용된 문자("0123456789+-*/(). ")만 체크 후 eval()
-    allowed = set("0123456789+-*/(). ")
-    if all(c in allowed for c in expression):
-        return str(eval(expression))
-    return "허용되지 않은 문자"
+    try:
+        # 간단한 수식만 허용 (보안용)
+        allowed = set("0123456789+-*/(). ")
+        if all(c in allowed for c in expression):
+            return str(eval(expression))
+        return "허용되지 않은 문자가 포함되어 있습니다"
+    except:
+        return "계산 오류"
 
 def get_weather(city):
-    # TODO: 날씨 데이터를 완성하세요 (3줄)
     weather_data = {
         "서울": "15°C, 맑음",
-        # TODO: 부산, 제주 추가
+        "부산": "18°C, 구름 조금",
+        "제주": "20°C, 흐림"
     }
     return weather_data.get(city, "16°C, 정보 없음")
 
-# 도구 실행 함수
 def execute_tool(tool_name, args=None):
     if tool_name == "get_time":
-        return get_time()
+        return f"⏰ 현재 시간: {get_time()}"
     elif tool_name == "calculate":
-        return calculate(args.get("expression", "0"))
+        result = calculate(args.get("expression", "0"))
+        return f"🧮 계산 결과: {result}"
     elif tool_name == "get_weather":
-        return get_weather(args.get("city", "서울"))
+        city = args.get("city", "서울")
+        return f"🌤️ {city} 날씨: {get_weather(city)}"
     return "알 수 없는 도구"
 
 st.write("### 사용 가능한 도구")
-st.write("- ⏰ 시간 조회")
-st.write("- 🧮 계산기")
-st.write("- 🌤️ 날씨 조회")
+st.write("- ⏰ 시간 조회: \"지금 몇 시야?\"")
+st.write("- 🧮 계산기: \"123 * 456 계산해줘\"")
+st.write("- 🌤️ 날씨 조회: \"서울 날씨 어때?\"")
 
 user_input = st.text_input("질문", "지금 몇 시야?")
 
 if user_input and st.button("실행"):
-    # 키워드 기반 도구 선택 (시뮬레이션)
-    if any(word in user_input for word in ["시간", "몇 시"]):
-        result = execute_tool("get_time")
-        st.write(f"⏰ {result}")
-    elif any(word in user_input for word in ["계산", "+", "-", "*", "/"]):
-        import re
-        nums = re.findall(r'[\d\+\-\*\/\(\)\.\s]+', user_input)
-        expression = ''.join(nums).strip() if nums else "0"
-        result = execute_tool("calculate", {"expression": expression})
-        st.write(f"🧮 결과: {result}")
-    elif any(word in user_input for word in ["날씨", "기온", "온도"]):
-        # TODO: 도시명 추출 후 날씨 조회 (3줄)
-        # 힌트: cities 리스트에서 user_input에 포함된 도시 찾기
-        #       execute_tool("get_weather", {"city": city})로 조회
-        st.info("TODO를 완성하세요")
-    else:
-        response = complete_llm(session, "llama3.1-70b", user_input)
-        st.write(response)
+    with st.spinner("Agent 실행 중..."):
+        # 키워드 기반 도구 선택 (간단한 패턴 매칭)
+        if any(word in user_input for word in ["시간", "몇 시"]):
+            result = execute_tool("get_time")
+        elif any(word in user_input for word in ["계산", "+", "-", "*", "/"]):
+            # 숫자와 연산자 추출
+            import re
+            nums = re.findall(r'[\d\+\-\*\/\(\)\.\s]+', user_input)
+            expression = ''.join(nums).strip() if nums else "0"
+            result = execute_tool("calculate", {"expression": expression})
+        elif any(word in user_input for word in ["날씨", "기온", "온도"]):
+            # TODO: 도시명 추출 후 날씨 조회 (3줄)
+            # 힌트: cities = ["서울", "부산", "제주", ...] 에서 user_input에 포함된 도시 찾기
+            #       execute_tool("get_weather", {"city": city})
+            result = "TODO를 완성하세요"  # TODO를 완성하세요
+        else:
+            # LLM에게 직접 답변 요청
+            result = complete_llm(session, "llama3.1-70b", user_input)
+
+    st.write("### 결과")
+    st.write(result)

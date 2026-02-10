@@ -14,7 +14,6 @@ streamlit run app_2_1.py
 
 import streamlit as st
 from snowflake.snowpark import Session
-import json
 
 def get_snowflake_session():
     connection_parameters = st.secrets["connections"]["snowflake"]
